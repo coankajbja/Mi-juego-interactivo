@@ -1,0 +1,2457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detective Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --surface: #0d1520;
+    --surface2: #111d2e;
+    --border: #1a3a5c;
+    --accent: #00d4ff;
+    --accent2: #ff6b2b;
+    --accent3: #00ff9d;
+    --danger: #ff3b5c;
+    --text: #cce8ff;
+    --text-dim: #5a7a99;
+    --gold: #ffd700;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .screen { display: none; animation: fadeIn 0.5s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── WELCOME IMAGE ── */
+  .welcome-image-wrap {
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .welcome-svg-container {
+    display: inline-block;
+    position: relative;
+  }
+
+  /* ── HEADER ── */
+  .game-header {
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #0d1520, #1a3a5c);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    font-size: 46px;
+    margin-bottom: 18px;
+    box-shadow: 0 0 40px rgba(0,212,255,0.3), inset 0 0 20px rgba(0,212,255,0.05);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(0,212,255,0.3); }
+    50% { box-shadow: 0 0 70px rgba(0,212,255,0.5); }
+  }
+
+  .title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(1.8rem, 6vw, 3.2rem);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--accent2);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .eu-tag {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+  }
+
+  /* ── CARDS ── */
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px;
+    margin: 16px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .intro-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent3), transparent);
+  }
+
+  .intro-card h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  .intro-card p {
+    color: var(--text);
+    line-height: 1.75;
+    margin-bottom: 12px;
+    font-size: 0.93rem;
+    font-weight: 300;
+  }
+
+  /* ── DIFFICULTY SELECTOR ── */
+  .difficulty-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 600px) {
+    .difficulty-grid { grid-template-columns: 1fr; }
+  }
+
+  .diff-card {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diff-card:hover { transform: translateY(-3px); }
+
+  .diff-card.selected-easy { border-color: var(--accent3); background: rgba(0,255,157,0.07); }
+  .diff-card.selected-medium { border-color: var(--gold); background: rgba(255,215,0,0.07); }
+  .diff-card.selected-hard { border-color: var(--danger); background: rgba(255,59,92,0.07); }
+
+  .diff-icon { font-size: 2.4rem; display: block; margin-bottom: 10px; }
+
+  .diff-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .diff-name.easy { color: var(--accent3); }
+  .diff-name.medium { color: var(--gold); }
+  .diff-name.hard { color: var(--danger); }
+
+  .diff-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .diff-check {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-size: 1.2rem;
+    display: none;
+  }
+
+  .diff-card.selected-easy .diff-check,
+  .diff-card.selected-medium .diff-check,
+  .diff-card.selected-hard .diff-check { display: block; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-block;
+    padding: 13px 34px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #005f80, #0099cc);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.25);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,212,255,0.4);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, #3a1a00, #cc4400);
+    color: #fff;
+    margin-top: 10px;
+  }
+  .btn-restart:hover { transform: translateY(-2px); }
+
+  /* ── FORM ── */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text-dim); }
+
+  .gender-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .gender-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+
+  .gender-btn:hover { border-color: var(--accent); color: var(--text); }
+  .gender-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.1); color: var(--accent); font-weight: 600; }
+
+  .gender-btn .g-icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+
+  /* ── CHARACTER SELECTION ── */
+  .character-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 580px) {
+    .character-grid { grid-template-columns: 1fr; }
+  }
+
+  .char-card {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+  }
+
+  .char-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,212,255,0.15); }
+
+  .char-card.selected-char { border-color: var(--accent); background: rgba(0,212,255,0.07); }
+  .char-card.selected-char-2 { border-color: var(--gold); background: rgba(255,215,0,0.07); }
+  .char-card.selected-char-3 { border-color: var(--accent2); background: rgba(255,107,43,0.07); }
+
+  .char-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .char-name-1 { color: var(--accent); }
+  .char-name-2 { color: var(--gold); }
+  .char-name-3 { color: var(--accent2); }
+
+  .char-desc {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .char-hints {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+
+  .char-hints-1 { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .char-hints-2 { background: rgba(255,215,0,0.15); color: var(--gold); }
+  .char-hints-3 { background: rgba(255,107,43,0.15); color: var(--accent2); }
+
+  .char-selected-badge {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-size: 1.1rem;
+    display: none;
+  }
+
+  .char-card.selected-char .char-selected-badge,
+  .char-card.selected-char-2 .char-selected-badge,
+  .char-card.selected-char-3 .char-selected-badge { display: block; }
+
+  /* ── HUD ── */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hud-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .hud-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .hud-value.score { color: var(--gold); }
+  .hud-value.lives { color: var(--danger); }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── GAME LAYOUT (character sidebar) ── */
+  .game-layout {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  @media (max-width: 600px) {
+    .game-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ── CHARACTER SIDEBAR ── */
+  .char-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    position: sticky;
+    top: 20px;
+  }
+
+  .char-sidebar-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .char-hint-btn {
+    background: linear-gradient(135deg, #1a3a00, #2a6600);
+    border: 1px solid var(--accent3);
+    border-radius: 8px;
+    padding: 8px 6px;
+    color: var(--accent3);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+
+  .char-hint-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2a5a00, #3a8800);
+    transform: scale(1.02);
+  }
+
+  .char-hint-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: var(--border);
+    color: var(--text-dim);
+    background: var(--surface2);
+  }
+
+  .hints-counter {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  .hint-bubble {
+    display: none;
+    background: rgba(0,255,157,0.08);
+    border: 1px solid rgba(0,255,157,0.3);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--text);
+    line-height: 1.5;
+    text-align: left;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* ── CASE CARD ── */
+  .case-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .case-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+  }
+
+  .case-number {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .case-category {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .case-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.98rem;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .case-scenario {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 0.92rem;
+    line-height: 1.75;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  .question {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--accent3);
+    margin-bottom: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 300;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .opt-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--border);
+    color: var(--accent);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    margin-top: 1px;
+  }
+
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(0,212,255,0.06); transform: translateX(4px); }
+  .option-btn:hover:not(:disabled) .opt-letter { background: var(--accent); color: var(--bg); }
+  .option-btn:disabled { cursor: default; }
+
+  .option-btn.correct { border-color: var(--accent3); background: rgba(0,255,157,0.08); }
+  .option-btn.correct .opt-letter { background: var(--accent3); color: var(--bg); }
+  .option-btn.wrong { border-color: var(--danger); background: rgba(255,59,92,0.08); opacity: 0.7; }
+  .option-btn.wrong .opt-letter { background: var(--danger); color: #fff; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-top: 14px;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .feedback.correct-fb { background: rgba(0,255,157,0.07); border: 1px solid rgba(0,255,157,0.3); }
+  .feedback.wrong-fb { background: rgba(255,59,92,0.07); border: 1px solid rgba(255,59,92,0.3); }
+
+  .feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .feedback.correct-fb .feedback-header { color: var(--accent3); }
+  .feedback.wrong-fb .feedback-header { color: var(--danger); }
+
+  .feedback-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  .eu-law {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  .next-wrap { text-align: right; margin-top: 14px; }
+
+  /* ── FINAL SCREEN ── */
+  .final-screen { text-align: center; padding: 40px 20px; }
+
+  .rank-display {
+    margin: 24px auto;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 60px rgba(255,215,0,0.3);
+    background: radial-gradient(circle, rgba(255,215,0,0.1), transparent);
+    animation: rankPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes rankPulse {
+    0%, 100% { box-shadow: 0 0 60px rgba(255,215,0,0.3); }
+    50% { box-shadow: 0 0 100px rgba(255,215,0,0.5); }
+  }
+
+  .rank-icon { font-size: 2.8rem; margin-bottom: 4px; }
+  .rank-score { font-size: 1.7rem; font-weight: 900; color: var(--gold); }
+  .rank-max { font-size: 0.7rem; color: var(--text-dim); }
+
+  .rank-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1rem, 4vw, 1.4rem);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 14px 0 6px;
+  }
+
+  .rank-desc {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    max-width: 480px;
+    margin: 0 auto 24px;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto 24px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 10px;
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 900;
+    display: block;
+  }
+
+  .stat-num.green { color: var(--accent3); }
+  .stat-num.red { color: var(--danger); }
+  .stat-num.blue { color: var(--accent); }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ── ERROR ── */
+  .field-error {
+    font-size: 0.75rem;
+    color: var(--danger);
+    margin-top: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    display: none;
+  }
+
+  /* ── RANK ILLUSTRATION ── */
+  .rank-illustration {
+    margin: 24px auto 8px;
+    display: flex;
+    justify-content: center;
+    animation: rankIllustrationIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  @keyframes rankIllustrationIn {
+    from { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  .rank-illustration svg {
+    filter: drop-shadow(0 0 24px var(--rank-glow, rgba(255,215,0,0.5)));
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* step dots */
+  .step-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+
+  .step-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .step-dot.done { background: var(--accent3); }
+
+  /* welcome banner */
+  .welcome-banner {
+    background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(0,255,157,0.05));
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .welcome-banner h3 {
+    font-family: 'Orbitron', monospace;
+    color: var(--accent);
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .welcome-banner p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* char display in game */
+  .char-avatar-wrap {
+    margin-bottom: 10px;
+  }
+
+  /* no-hints msg */
+  .no-hints-msg {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--danger);
+    margin-top: 8px;
+    text-align: center;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 1 — BIENVENIDA + DIFICULTAD
+  ══════════════════════════════════════ -->
+  <div id="screen-welcome" class="screen active">
+    <div class="game-header">
+      <div class="badge">🔍</div>
+      <div class="subtitle">Operación Europa</div>
+      <h1 class="title">Detective Digital</h1>
+      <div class="eu-tag">★ Unión Europea — Derechos Digitales ★</div>
+    </div>
+
+    <!-- Imagen de bienvenida SVG -->
+    <div class="welcome-image-wrap">
+      <svg width="340" height="190" viewBox="0 0 340 190" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">
+        <defs>
+          <radialGradient id="bgGrad" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" style="stop-color:#0d2a40;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#080c14;stop-opacity:1"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Background -->
+        <rect width="340" height="190" rx="14" fill="url(#bgGrad)" stroke="#1a3a5c" stroke-width="1.5"/>
+        <!-- Grid lines -->
+        <g stroke="#00d4ff" stroke-opacity="0.06" stroke-width="1">
+          <line x1="0" y1="30" x2="340" y2="30"/>
+          <line x1="0" y1="60" x2="340" y2="60"/>
+          <line x1="0" y1="90" x2="340" y2="90"/>
+          <line x1="0" y1="120" x2="340" y2="120"/>
+          <line x1="0" y1="150" x2="340" y2="150"/>
+          <line x1="60" y1="0" x2="60" y2="190"/>
+          <line x1="120" y1="0" x2="120" y2="190"/>
+          <line x1="180" y1="0" x2="180" y2="190"/>
+          <line x1="240" y1="0" x2="240" y2="190"/>
+          <line x1="300" y1="0" x2="300" y2="190"/>
+        </g>
+        <!-- Shield base -->
+        <path d="M170 24 L214 42 L214 88 Q214 118 170 134 Q126 118 126 88 L126 42 Z" fill="#0d1a2e" stroke="#00d4ff" stroke-width="2" filter="url(#glow)"/>
+        <!-- Shield inner -->
+        <path d="M170 34 L206 49 L206 86 Q206 112 170 126 Q134 112 134 86 L134 49 Z" fill="#071420" stroke="#00d4ff" stroke-opacity="0.4" stroke-width="1"/>
+        <!-- Magnifier -->
+        <circle cx="165" cy="80" r="22" fill="none" stroke="#00d4ff" stroke-width="3" filter="url(#glow)"/>
+        <circle cx="165" cy="80" r="15" fill="rgba(0,212,255,0.07)"/>
+        <line x1="181" y1="96" x2="196" y2="111" stroke="#00d4ff" stroke-width="3.5" stroke-linecap="round" filter="url(#glow)"/>
+        <!-- EU stars -->
+        <g fill="#ffd700" filter="url(#glow)">
+          <text x="157" y="75" font-size="10" text-anchor="middle">★</text>
+          <text x="168" y="68" font-size="10" text-anchor="middle">★</text>
+          <text x="179" y="75" font-size="10" text-anchor="middle">★</text>
+          <text x="168" y="84" font-size="10" text-anchor="middle">★</text>
+        </g>
+        <!-- Decorative elements left -->
+        <rect x="20" y="55" width="80" height="6" rx="3" fill="#00d4ff" fill-opacity="0.15" stroke="#00d4ff" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="20" y="68" width="55" height="4" rx="2" fill="#00d4ff" fill-opacity="0.08"/>
+        <rect x="20" y="79" width="65" height="4" rx="2" fill="#00d4ff" fill-opacity="0.08"/>
+        <rect x="20" y="90" width="45" height="4" rx="2" fill="#00d4ff" fill-opacity="0.08"/>
+        <!-- Decorative elements right -->
+        <rect x="240" y="55" width="80" height="6" rx="3" fill="#ff6b2b" fill-opacity="0.15" stroke="#ff6b2b" stroke-opacity="0.3" stroke-width="1"/>
+        <rect x="265" y="68" width="55" height="4" rx="2" fill="#ff6b2b" fill-opacity="0.08"/>
+        <rect x="255" y="79" width="65" height="4" rx="2" fill="#ff6b2b" fill-opacity="0.08"/>
+        <rect x="275" y="90" width="45" height="4" rx="2" fill="#ff6b2b" fill-opacity="0.08"/>
+        <!-- Title text -->
+        <text x="170" y="158" font-family="monospace" font-size="11" font-weight="bold" fill="#00d4ff" text-anchor="middle" letter-spacing="4" filter="url(#glow)">DETECTIVE DIGITAL</text>
+        <text x="170" y="174" font-family="monospace" font-size="8" fill="#5a7a99" text-anchor="middle" letter-spacing="2">OPERACIÓN EUROPA</text>
+        <!-- Corner accents -->
+        <polyline points="8,8 8,24 24,24" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.6"/>
+        <polyline points="332,8 332,24 316,24" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.6"/>
+        <polyline points="8,182 8,166 24,166" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.6"/>
+        <polyline points="332,182 332,166 316,166" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.6"/>
+      </svg>
+    </div>
+
+    <!-- Step dots -->
+    <div class="step-dots">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+
+    <div class="intro-card">
+      <h2>📋 Instrucciones</h2>
+      <p>Eres un detective especializado en ciberseguridad al servicio de la Unión Europea. Analiza situaciones digitales reales, toma las decisiones correctas y aprende a proteger tus derechos online.</p>
+      <p>Responde <strong>10 casos</strong> sobre <strong>ciberseguridad</strong>, <strong>inteligencia artificial</strong> y <strong>derechos digitales</strong> según la legislación europea. Por cada respuesta correcta sumas <strong>10 puntos</strong>. Tu personaje te dará pistas si las necesitas.</p>
+    </div>
+
+    <div class="intro-card">
+      <h2>⚡ Selecciona Dificultad</h2>
+      <div class="difficulty-grid">
+        <div class="diff-card" id="diff-easy" onclick="selectDifficulty('easy')">
+          <div class="diff-check">✅</div>
+          <span class="diff-icon">🟢</span>
+          <div class="diff-name easy">Fácil</div>
+          <div class="diff-desc">Situaciones cotidianas básicas. Conceptos fundamentales de seguridad digital.</div>
+        </div>
+        <div class="diff-card" id="diff-medium" onclick="selectDifficulty('medium')">
+          <div class="diff-check">✅</div>
+          <span class="diff-icon">🟡</span>
+          <div class="diff-name medium">Medio</div>
+          <div class="diff-desc">Casos comunes con más detalle. Requiere conocimiento de legislación básica.</div>
+        </div>
+        <div class="diff-card" id="diff-hard" onclick="selectDifficulty('hard')">
+          <div class="diff-check">✅</div>
+          <span class="diff-icon">🔴</span>
+          <div class="diff-name hard">Difícil</div>
+          <div class="diff-desc">Situaciones complejas y poco habituales. Para expertos en derecho digital europeo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin: 10px 0 40px;">
+      <button class="btn btn-primary" id="btn-to-profile" onclick="goToProfile()" disabled>SIGUIENTE →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 2 — PERFIL DE JUGADOR
+  ══════════════════════════════════════ -->
+  <div id="screen-profile" class="screen">
+    <div class="game-header" style="padding: 24px 20px 16px;">
+      <div class="badge" style="width:70px;height:70px;line-height:70px;font-size:34px;margin-bottom:12px;">👤</div>
+      <h1 class="title" style="font-size:clamp(1.4rem,5vw,2.4rem)">Tu Perfil</h1>
+    </div>
+
+    <div class="step-dots">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+
+    <div class="intro-card">
+      <h2>🪪 Datos del Agente</h2>
+
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input type="text" class="form-input" id="inp-name" placeholder="Escribe tu nombre...">
+        <div class="field-error" id="err-name">Por favor, introduce tu nombre</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Apellidos *</label>
+        <input type="text" class="form-input" id="inp-surname" placeholder="Escribe tus apellidos...">
+        <div class="field-error" id="err-surname">Por favor, introduce tus apellidos</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Sexo *</label>
+        <div class="gender-grid">
+          <div class="gender-btn" id="g-male" onclick="selectGender('male')">
+            <span class="g-icon">♂️</span>Hombre
+          </div>
+          <div class="gender-btn" id="g-female" onclick="selectGender('female')">
+            <span class="g-icon">♀️</span>Mujer
+          </div>
+          <div class="gender-btn" id="g-other" onclick="selectGender('other')">
+            <span class="g-icon">⚧</span>Otro
+          </div>
+        </div>
+        <div class="field-error" id="err-gender">Por favor, selecciona una opción</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin: 10px 0 40px;">
+      <button class="btn btn-primary" onclick="goToCharacter()">SIGUIENTE →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA 3 — SELECCIÓN DE PERSONAJE
+  ══════════════════════════════════════ -->
+  <div id="screen-character" class="screen">
+    <div class="game-header" style="padding: 24px 20px 16px;">
+      <div class="badge" style="width:70px;height:70px;line-height:70px;font-size:34px;margin-bottom:12px;">🦸</div>
+      <h1 class="title" style="font-size:clamp(1.4rem,5vw,2.4rem)">Tu Compañero</h1>
+      <div class="eu-tag">Elige quién te ayudará en la misión</div>
+    </div>
+
+    <div class="step-dots">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+    </div>
+
+    <div class="intro-card">
+      <h2>🕵️ Selecciona tu Compañero</h2>
+      <p style="margin-bottom:6px;">Cada compañero tiene un número diferente de pistas disponibles. Pulsa sobre ellos durante el juego para obtener ayuda.</p>
+
+      <div class="character-grid">
+
+        <!-- CHAR 1: NOVA -->
+        <div class="char-card" id="char-1" onclick="selectCharacter(1)">
+          <div class="char-selected-badge">✅</div>
+          <svg width="80" height="90" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="28" r="20" fill="#0d2a40" stroke="#00d4ff" stroke-width="2"/>
+            <circle cx="40" cy="28" r="15" fill="#071420"/>
+            <!-- Face -->
+            <circle cx="33" cy="26" r="3.5" fill="#00d4ff" opacity="0.9"/>
+            <circle cx="47" cy="26" r="3.5" fill="#00d4ff" opacity="0.9"/>
+            <circle cx="33" cy="26" r="1.5" fill="#fff"/>
+            <circle cx="47" cy="26" r="1.5" fill="#fff"/>
+            <path d="M34 34 Q40 38 46 34" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Antena -->
+            <line x1="40" y1="8" x2="40" y2="2" stroke="#00d4ff" stroke-width="1.5"/>
+            <circle cx="40" cy="2" r="2" fill="#00ff9d"/>
+            <!-- Body -->
+            <rect x="24" y="50" width="32" height="28" rx="8" fill="#0d2a40" stroke="#00d4ff" stroke-width="1.5"/>
+            <!-- Badge -->
+            <rect x="34" y="56" width="12" height="10" rx="2" fill="#071420" stroke="#00d4ff" stroke-width="1"/>
+            <text x="40" y="64" font-size="6" fill="#00d4ff" text-anchor="middle">UE</text>
+            <!-- Arms -->
+            <line x1="24" y1="56" x2="14" y2="66" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="56" y1="56" x2="66" y2="66" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Legs -->
+            <line x1="33" y1="78" x2="30" y2="88" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="47" y1="78" x2="50" y2="88" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Stars on head -->
+            <text x="22" y="18" font-size="8" fill="#ffd700">★</text>
+            <text x="51" y="18" font-size="8" fill="#ffd700">★</text>
+          </svg>
+          <div class="char-name char-name-1">NOVA</div>
+          <div class="char-desc">La analista experta. Siempre lista para guiarte con pistas claras y directas.</div>
+          <span class="char-hints char-hints-1">∞ PISTAS ILIMITADAS</span>
+        </div>
+
+        <!-- CHAR 2: BYTE -->
+        <div class="char-card" id="char-2" onclick="selectCharacter(2)">
+          <div class="char-selected-badge">✅</div>
+          <svg width="80" height="90" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+            <!-- Hat -->
+            <path d="M22 28 L58 28 L52 12 L28 12 Z" fill="#0d2a40" stroke="#ffd700" stroke-width="1.5"/>
+            <rect x="18" y="27" width="44" height="5" rx="2" fill="#ffd700" opacity="0.8"/>
+            <circle cx="40" cy="10" r="3" fill="#ffd700" opacity="0.9"/>
+            <!-- Head -->
+            <circle cx="40" cy="38" r="18" fill="#0d2a40" stroke="#ffd700" stroke-width="2"/>
+            <circle cx="40" cy="38" r="13" fill="#071420"/>
+            <!-- Face -->
+            <rect x="31" y="34" width="8" height="6" rx="1" fill="#ffd700" opacity="0.8"/>
+            <rect x="41" y="34" width="8" height="6" rx="1" fill="#ffd700" opacity="0.8"/>
+            <path d="M34 44 Q40 47 46 44" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Monocle -->
+            <circle cx="47" cy="37" r="5" fill="none" stroke="#ffd700" stroke-width="1"/>
+            <!-- Body -->
+            <rect x="25" y="58" width="30" height="24" rx="7" fill="#0d2a40" stroke="#ffd700" stroke-width="1.5"/>
+            <!-- Tie -->
+            <path d="M38 58 L36 70 L40 67 L44 70 L42 58 Z" fill="#ffd700" opacity="0.7"/>
+            <!-- Arms -->
+            <line x1="25" y1="63" x2="14" y2="72" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="55" y1="63" x2="66" y2="72" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Legs -->
+            <line x1="33" y1="82" x2="30" y2="90" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="47" y1="82" x2="50" y2="90" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <div class="char-name char-name-2">BYTE</div>
+          <div class="char-desc">El detective experimentado. Sus pistas son sutiles pero valiosas.</div>
+          <span class="char-hints char-hints-2">8 PISTAS DISPONIBLES</span>
+        </div>
+
+        <!-- CHAR 3: GLITCH -->
+        <div class="char-card" id="char-3" onclick="selectCharacter(3)">
+          <div class="char-selected-badge">✅</div>
+          <svg width="80" height="90" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+            <!-- Hood/cape -->
+            <path d="M18 38 Q18 10 40 8 Q62 10 62 38 L58 48 L22 48 Z" fill="#1a0a28" stroke="#ff6b2b" stroke-width="1.5"/>
+            <!-- Head -->
+            <circle cx="40" cy="32" r="17" fill="#0d1520" stroke="#ff6b2b" stroke-width="2"/>
+            <!-- Mask -->
+            <path d="M26 32 Q28 22 40 22 Q52 22 54 32 L50 36 Q40 40 30 36 Z" fill="#0d0820" stroke="#ff6b2b" stroke-width="1"/>
+            <!-- Eyes glow -->
+            <ellipse cx="33" cy="30" rx="5" ry="4" fill="#ff6b2b" opacity="0.9"/>
+            <ellipse cx="47" cy="30" rx="5" ry="4" fill="#ff6b2b" opacity="0.9"/>
+            <ellipse cx="33" cy="30" rx="2.5" ry="2" fill="#fff" opacity="0.6"/>
+            <ellipse cx="47" cy="30" rx="2.5" ry="2" fill="#fff" opacity="0.6"/>
+            <!-- Smirk -->
+            <path d="M36 38 Q40 41 44 38" fill="none" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Body with cape -->
+            <path d="M18 56 Q15 72 20 82 L25 82 L26 58 Z" fill="#1a0a28" stroke="#ff6b2b" stroke-width="1"/>
+            <path d="M62 56 Q65 72 60 82 L55 82 L54 58 Z" fill="#1a0a28" stroke="#ff6b2b" stroke-width="1"/>
+            <rect x="24" y="50" width="32" height="28" rx="6" fill="#0d1520" stroke="#ff6b2b" stroke-width="1.5"/>
+            <!-- Chest symbol -->
+            <path d="M40 54 L44 62 L40 60 L36 62 Z" fill="#ff6b2b" opacity="0.8"/>
+            <!-- Legs -->
+            <line x1="33" y1="78" x2="30" y2="88" stroke="#ff6b2b" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="47" y1="78" x2="50" y2="88" stroke="#ff6b2b" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Sparkles -->
+            <text x="8" y="28" font-size="10" fill="#ff6b2b" opacity="0.7">✦</text>
+            <text x="62" y="24" font-size="8" fill="#ff6b2b" opacity="0.5">✦</text>
+          </svg>
+          <div class="char-name char-name-3">GLITCH</div>
+          <div class="char-desc">El hacker misterioso. Sus pistas son enigmáticas. Solo actúa cuando más lo necesitas.</div>
+          <span class="char-hints char-hints-3">5 PISTAS DISPONIBLES</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center; margin: 10px 0 40px;">
+      <button class="btn btn-primary" id="btn-start-game" onclick="startGame()" disabled>⚡ INICIAR MISIÓN</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA JUEGO
+  ══════════════════════════════════════ -->
+  <div id="screen-game" class="screen">
+    <!-- Welcome banner (shown once) -->
+    <div class="welcome-banner" id="welcome-banner" style="display:none">
+      <h3 id="welcome-agent-title">¡Bienvenida, Agente!</h3>
+      <p id="welcome-agent-text">Tu misión comienza ahora.</p>
+    </div>
+
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-label">Agente</span>
+        <span class="hud-value" id="hud-name" style="font-size:0.8rem">—</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Caso</span>
+        <span class="hud-value" id="hud-case">1/10</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Puntos</span>
+        <span class="hud-value score" id="hud-score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">✔ Correctas</span>
+        <span class="hud-value" id="hud-correct" style="color:var(--accent3)">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">✘ Errores</span>
+        <span class="hud-value lives" id="hud-wrong">0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="game-layout">
+      <!-- CHARACTER SIDEBAR -->
+      <div class="char-sidebar" id="char-sidebar">
+        <div class="char-avatar-wrap" id="char-avatar-game"></div>
+        <div class="char-sidebar-name" id="char-sidebar-name">COMPAÑERO</div>
+        <button class="char-hint-btn" id="hint-btn" onclick="getHint()">💡 PEDIR PISTA</button>
+        <div class="hints-counter" id="hints-counter"></div>
+        <div class="no-hints-msg" id="no-hints-msg">Ya no puedo darte más pistas</div>
+        <div class="hint-bubble" id="hint-bubble"></div>
+      </div>
+
+      <!-- CASE CARD -->
+      <div class="case-card" id="case-card">
+        <div class="case-number" id="case-number">CASO #001</div>
+        <span class="case-category" id="case-category">Categoría</span>
+        <h2 class="case-title" id="case-title">Título del caso</h2>
+        <div class="case-scenario" id="case-scenario">Escenario...</div>
+        <div class="question" id="case-question">¿Qué harías?</div>
+        <div class="options" id="options-container"></div>
+        <div class="feedback" id="feedback">
+          <div class="feedback-header" id="feedback-header"></div>
+          <div class="feedback-text" id="feedback-text"></div>
+          <div id="feedback-law"></div>
+        </div>
+        <div class="next-wrap" id="next-wrap" style="display:none">
+          <button class="btn btn-primary" id="next-btn" onclick="nextCase()">SIGUIENTE CASO →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PANTALLA FINAL
+  ══════════════════════════════════════ -->
+  <div id="screen-final" class="screen">
+    <div class="final-screen">
+      <div class="subtitle" style="margin-bottom:6px">Misión completada</div>
+      <h1 class="title" style="margin-bottom:16px">Informe Final</h1>
+      <div id="final-agent-info" style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--text-dim);margin-bottom:16px;letter-spacing:1px;"></div>
+
+      <div class="rank-display" id="rank-display">
+        <div class="rank-icon" id="rank-icon">🏆</div>
+        <div class="rank-score" id="rank-score">0</div>
+        <div class="rank-max">/ 100 pts</div>
+      </div>
+
+      <div class="rank-title" id="rank-title">RANGO</div>
+      <div class="rank-desc" id="rank-desc">Descripción.</div>
+
+      <!-- Rank illustration -->
+      <div class="rank-illustration" id="rank-illustration"></div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-num green" id="final-correct">0</span>
+          <span class="stat-label">Correctas</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num red" id="final-wrong">0</span>
+          <span class="stat-label">Errores</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num blue" id="final-pct">0%</span>
+          <span class="stat-label">Precisión</span>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn btn-primary" onclick="restartGame()">🔄 NUEVA MISIÓN</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;display:none;"></canvas>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CASES DATABASE — 3 difficulties × 10 cases
+═══════════════════════════════════════════════ */
+
+const CASES_EASY = [
+  {
+    id:1, category:"🔐 Contraseñas", title:"Contraseña muy fácil",
+    scenario:"Juan usa '123456' como contraseña en todas sus cuentas. Su amigo le dice que eso es peligroso.",
+    question:"¿Qué debería hacer Juan?",
+    options:["Está bien, es fácil de recordar.","Cambiarla por una contraseña larga con letras, números y símbolos diferente en cada cuenta.","Cambiarla solo en su banco.","Apuntarla en un papel pegado al monitor."],
+    correct:1,
+    feedback_correct:"¡Correcto! Una contraseña segura debe ser larga y única para cada servicio. Usar gestores de contraseñas facilita recordarlas.",
+    feedback_wrong:"Las contraseñas simples como '123456' son las primeras que prueban los atacantes. Hay que usar contraseñas largas, únicas y complejas.",
+    law:"RGPD Art. 32: protección de datos personales mediante medidas técnicas adecuadas.",
+    hints:["Piensa en qué pasa si alguien adivina una sola contraseña y accede a todo.","Una contraseña segura tiene más de 12 caracteres y mezcla tipos de caracteres.","Cada cuenta debe tener una contraseña diferente."]
+  },
+  {
+    id:2, category:"🎣 Phishing", title:"El email sospechoso",
+    scenario:"Ana recibe un email que dice 'Has ganado un premio. Haz clic aquí'. No reconoce al remitente.",
+    question:"¿Qué debe hacer Ana?",
+    options:["Hacer clic para ver el premio.","Borrar el email sin hacer clic y no responder.","Responder pidiendo más información.","Reenviar el email a sus contactos."],
+    correct:1,
+    feedback_correct:"¡Exacto! Los emails de premios inesperados son casi siempre intentos de fraude. Lo mejor es borrarlos directamente.",
+    feedback_wrong:"Hacer clic en enlaces de emails desconocidos puede instalar virus o robar tus datos. Siempre desconfía de premios inesperados.",
+    law:"Directiva NIS2: los fraudes digitales son delito en toda la UE.",
+    hints:["¿Recuerdas haber participado en algún concurso?","Los emails de fraude suelen crear emoción o urgencia para que actúes rápido.","Si no lo pediste, probablemente no es real."]
+  },
+  {
+    id:3, category:"🔒 Privacidad", title:"Información personal en redes",
+    scenario:"Pedro quiere publicar en Instagram su dirección de casa y su número de teléfono para que sus amigos lo encuentren fácilmente.",
+    question:"¿Es buena idea publicar esos datos?",
+    options:["Sí, es la forma más fácil de que te encuentren.","No, esa información puede ser usada por desconocidos de forma peligrosa.","Solo el teléfono es seguro de publicar.","Es seguro si tu perfil es público."],
+    correct:1,
+    feedback_correct:"¡Bien! Publicar dirección y teléfono en redes sociales puede exponerte a acoso, robo o estafas. Comparte esos datos solo por mensajes privados.",
+    feedback_wrong:"Publicar tu dirección y teléfono en público permite que cualquier desconocido acceda a esa información, lo que puede ser peligroso.",
+    law:"RGPD Art. 5: los datos personales deben protegerse. Tú controlas quién tiene acceso a tu información.",
+    hints:["Piensa en quién puede ver un perfil público.","Tu dirección permite saber dónde vives a cualquier persona.","¿Darías tu dirección a un desconocido en la calle?"]
+  },
+  {
+    id:4, category:"💻 Dispositivos", title:"El ordenador sin actualizar",
+    scenario:"Marta lleva dos años sin actualizar su ordenador porque 'tarda mucho' y le resulta molesto.",
+    question:"¿Por qué es importante actualizar el sistema?",
+    options:["No importa, las actualizaciones son solo para poner cosas nuevas.","Las actualizaciones corrigen fallos de seguridad que los hackers pueden aprovechar.","Solo hay que actualizar cuando el ordenador va lento.","Las actualizaciones empeoran el rendimiento."],
+    correct:1,
+    feedback_correct:"¡Correcto! Las actualizaciones corrigen vulnerabilidades conocidas. Sin ellas, el ordenador es mucho más fácil de atacar.",
+    feedback_wrong:"Las actualizaciones incluyen parches de seguridad. Sin ellas, los atacantes pueden usar vulnerabilidades conocidas para acceder a tu equipo.",
+    law:"Directiva NIS2: mantener los sistemas actualizados es una medida básica de ciberseguridad.",
+    hints:["Las actualizaciones no son solo nuevas funciones.","Los hackers buscan fallos conocidos en versiones antiguas.","¿Querrías dejar la puerta de tu casa con una cerradura rota?"]
+  },
+  {
+    id:5, category:"📱 Apps", title:"La app de juegos gratis",
+    scenario:"Luis descarga un juego gratis que pide acceso a sus fotos, contactos y ubicación. El juego es simplemente un puzzle.",
+    question:"¿Debe dar todos esos permisos?",
+    options:["Sí, si quiere jugar tiene que aceptar todo.","No, un puzzle no necesita fotos, contactos ni ubicación. Debe denegar esos permisos.","Solo el acceso a fotos es necesario para el juego.","Debe aceptar y luego desinstalar la app."],
+    correct:1,
+    feedback_correct:"¡Perfecto! Un juego de puzzle no necesita acceso a tu ubicación ni contactos. Permisos excesivos indican que la app recopila datos innecesariamente.",
+    feedback_wrong:"Los permisos deben ser proporcionales a la función de la app. Un puzzle no necesita saber dónde estás ni quiénes son tus contactos.",
+    law:"RGPD Art. 5(1)(c): minimización de datos. Solo se recopila lo estrictamente necesario.",
+    hints:["Piensa: ¿para qué necesita un puzzle tu ubicación?","Las apps gratuitas a veces ganan dinero vendiendo tus datos.","Puedes usar la app rechazando los permisos innecesarios."]
+  },
+  {
+    id:6, category:"🌐 Internet Seguro", title:"La red WiFi del vecino",
+    scenario:"Carlos puede conectarse a la red WiFi de su vecino porque no tiene contraseña. Quiere usarla para navegar.",
+    question:"¿Está bien conectarse sin permiso?",
+    options:["Sí, si no tiene contraseña es que es para todo el mundo.","No, usar una red ajena sin permiso es ilegal y puede comprometer tu seguridad.","Es aceptable si solo mira páginas web normales.","Solo es malo si descarga cosas ilegales."],
+    correct:1,
+    feedback_correct:"¡Correcto! Acceder a una red WiFi sin permiso del propietario es ilegal en España y en la UE, y además expone tus datos al dueño de esa red.",
+    feedback_wrong:"Conectarse a una red WiFi ajena sin permiso es un acceso no autorizado a un sistema informático, lo que está tipificado como delito.",
+    law:"Art. 197 bis del Código Penal español: acceso ilegal a sistemas informáticos. También vulnera la Ley de Telecomunicaciones.",
+    hints:["¿Le pedirías prestada la bici de tu vecino sin preguntar?","El dueño de la red puede ver todo tu tráfico.","Sin contraseña no significa autorizado."]
+  },
+  {
+    id:7, category:"🤖 IA Básica", title:"El chatbot que sabe todo",
+    scenario:"Sofía usa un chatbot de IA para hacer sus deberes y publica el texto sin revisarlo ni cambiarlo como si fuera suyo.",
+    question:"¿Cuál es el problema principal de esta acción?",
+    options:["Ninguno, la IA siempre da respuestas correctas.","El texto puede contener errores, y presentarlo como propio puede ser plagio académico.","El único problema es que tarda mucho.","Solo es un problema si el profesor usa IA para detectarlo."],
+    correct:1,
+    feedback_correct:"¡Bien! La IA puede cometer errores de hecho. Además, presentar trabajo generado por IA como propio sin indicarlo puede considerarse deshonestidad académica.",
+    feedback_wrong:"Los chatbots de IA pueden inventar información incorrecta. Además, presentar su output como trabajo propio sin indicarlo es una forma de deshonestidad académica.",
+    law:"AI Act UE (2024): los sistemas de IA deben usarse de forma responsable y transparente.",
+    hints:["La IA puede 'alucinar' datos y fechas que no existen.","¿Firmarías un contrato sin leerlo?","El trabajo académico valora tu comprensión, no la de una máquina."]
+  },
+  {
+    id:8, category:"📧 Comunicación Segura", title:"El mensaje de texto extraño",
+    scenario:"Diego recibe un SMS diciendo: 'Tu paquete no ha podido entregarse. Paga 1€ de aduana aquí: [enlace]'. No espera ningún paquete.",
+    question:"¿Qué debe hacer Diego?",
+    options:["Pagar 1€, es muy poco dinero y así recibe el paquete.","Ignorar el mensaje y no hacer clic en el enlace, es una estafa tipo 'smishing'.","Llamar a la empresa de mensajería usando el número del SMS.","Clicar para ver de qué paquete se trata."],
+    correct:1,
+    feedback_correct:"¡Exacto! El 'smishing' es phishing por SMS. El enlace lleva a una web falsa que roba tus datos de pago. Si no esperas ningún paquete, es claramente una estafa.",
+    feedback_wrong:"Es un 'smishing': phishing por SMS. El objetivo es que introduzcas tus datos bancarios en una web falsa. El 1€ es solo el pretexto.",
+    law:"Directiva Europea contra el Fraude: el smishing es un delito perseguible en toda la UE.",
+    hints:["¿Esperabas algún paquete?","Las empresas de mensajería legítimas no cobran aduanas por SMS.","El enlace lleva a una web falsa que se parece a la real."]
+  },
+  {
+    id:9, category:"🛡️ Protección Básica", title:"El antivirus gratuito sospechoso",
+    scenario:"Laura ve un anuncio en internet: '¡Tu ordenador tiene 5 virus! Descarga nuestro antivirus GRATIS ahora para limpiarlos.' Aparece con una alarma sonora.",
+    question:"¿Qué está pasando?",
+    options:["Es real, hay que descargarlo inmediatamente.","Es un engaño: las webs no pueden detectar virus en tu ordenador. Es malware disfrazado de antivirus.","Solo hay que descargarlo si se oye la alarma.","Es seguro si el antivirus dice ser gratis."],
+    correct:1,
+    feedback_correct:"¡Perfecto! Ninguna web puede saber si tienes virus con solo visitarla. Esto es un 'scareware': software malicioso que te asusta para que lo instales y que luego daña o espía tu equipo.",
+    feedback_wrong:"Es un 'scareware'. Las páginas web no pueden escanear tu ordenador en busca de virus. La alarma y el aviso son falsos para que descargues malware.",
+    law:"Directiva NIS2 y legislación penal de la UE: distribuir malware es un delito grave.",
+    hints:["¿Puede una web saber lo que tienes en tu ordenador sin permiso?","La alarma está diseñada para asustarte y que actúes sin pensar.","Si ya tienes un antivirus, ¿cómo sabe esta web que tienes virus?"]
+  },
+  {
+    id:10, category:"🌍 Derechos Digitales", title:"La empresa que no responde",
+    scenario:"Roberto pide a una tienda online que elimine todos sus datos personales. La tienda no responde en tres semanas.",
+    question:"¿Qué puede hacer Roberto?",
+    options:["Nada, la empresa puede tardar lo que quiera.","Tiene derecho a presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD).","Solo puede volver a pedirlo amablemente.","Debe esperar al menos un año antes de reclamar."],
+    correct:1,
+    feedback_correct:"¡Correcto! El RGPD obliga a las empresas a responder a las solicitudes de supresión en un mes. Roberto puede reclamar ante la AEPD, que puede sancionar a la empresa.",
+    feedback_wrong:"El RGPD establece plazos concretos para responder a los derechos de los ciudadanos. Si no se respetan, la AEPD puede sancionar a la empresa.",
+    law:"RGPD Art. 17 (derecho al olvido) y Art. 12 (plazos de respuesta: máximo 1 mes). AEPD supervisa el cumplimiento en España.",
+    hints:["El RGPD da derechos concretos a los ciudadanos.","Las empresas tienen un plazo legal para responder.","Existe una autoridad que vigila que las empresas cumplan la ley."]
+  }
+];
+
+const CASES_MEDIUM = [
+  {
+    id:1, category:"🔐 Contraseñas", title:"La contraseña reutilizada",
+    scenario:"María usa la misma contraseña en su correo, banco y redes sociales. Una tienda online donde compraba es hackeada y las contraseñas se filtran.",
+    question:"¿Cuál es el mayor riesgo y qué debe hacer María?",
+    options:["Solo cambiar la contraseña de la tienda.","No hay riesgo, el correo y el banco son más seguros.","Cambiar inmediatamente todas las contraseñas, especialmente del banco y correo, y usar contraseñas únicas.","Desactivar todas sus cuentas temporalmente."],
+    correct:2,
+    feedback_correct:"¡Exacto! El 'credential stuffing' consiste en probar contraseñas filtradas en otros servicios. Cambiar todas las contraseñas y usar gestores es la solución.",
+    feedback_wrong:"Si una contraseña se filtra y es la misma que usas en otros sitios, los atacantes la probarán en todos los servicios. Cambia todas y usa contraseñas únicas.",
+    law:"RGPD Art. 32: las empresas deben cifrar correctamente las contraseñas. NIS2: notificación de brechas en 24-72h.",
+    hints:["Piensa en qué harías si una llave abre varias puertas y alguien la copia.","Los hackers tienen herramientas automáticas para probar contraseñas filtradas en miles de servicios.","El correo electrónico es especialmente crítico porque permite recuperar el acceso a otros servicios."]
+  },
+  {
+    id:2, category:"🎣 Phishing", title:"El email del banco",
+    scenario:"Carlos recibe un email urgente de 'su banco' con logo oficial diciendo que su cuenta se bloqueará en 24h. El remitente es seguridad@banco-alertas-ue.net.",
+    question:"¿Cómo debe reaccionar Carlos?",
+    options:["Clicar rápido para evitar el bloqueo.","Responder con sus datos para verificarse.","Ignorar el email y llamar al banco por el número oficial de su tarjeta.","Reenviar el aviso a sus contactos."],
+    correct:2,
+    feedback_correct:"¡Perfecto! El dominio sospechoso y la urgencia artificial son señales claras de phishing. Los bancos nunca piden datos por email con amenaza de bloqueo.",
+    feedback_wrong:"Es phishing. La urgencia falsa y el dominio extraño lo delatan. Nunca hagas clic. Contacta siempre al banco por sus canales oficiales.",
+    law:"Directiva NIS2 y DORA: los bancos europeos deben proteger a sus clientes de fraudes digitales.",
+    hints:["Fíjate en la dirección de correo del remitente, no solo en el nombre que aparece.","Los bancos legítimos nunca bloquean cuentas con 24h de aviso por email.","Llama al número que aparece en el reverso de tu tarjeta."]
+  },
+  {
+    id:3, category:"🤖 IA y Derechos", title:"La IA que decide tu préstamo",
+    scenario:"Laura solicita un préstamo. El banco lo deniega diciendo que 'el algoritmo ha decidido'. No le dan más explicaciones ni forma de recurrir.",
+    question:"¿Tiene Laura derechos ante esta situación según la legislación europea?",
+    options:["No, si usan IA el banco puede decidir sin explicar.","Solo puede buscar otro banco.","Sí: tiene derecho a una explicación, a no ser objeto de decisiones exclusivamente automáticas y a recurrir ante una persona.","Puede denunciar solo si demuestra un error técnico."],
+    correct:2,
+    feedback_correct:"¡Correcto! El RGPD y la AI Act garantizan el derecho a no ser objeto de decisiones automatizadas significativas sin intervención humana ni explicación comprensible.",
+    feedback_wrong:"Laura tiene derechos claros. El RGPD garantiza explicación y revisión humana de decisiones automatizadas importantes. La AI Act refuerza esto en sistemas de alto riesgo como créditos.",
+    law:"RGPD Art. 22: decisiones automatizadas. AI Act UE 2024: sistemas de crédito = alto riesgo, requieren transparencia y supervisión humana.",
+    hints:["¿Puede una empresa afectar tu vida sin que una persona tome la decisión?","El RGPD tiene artículos específicos sobre decisiones automatizadas.","Existe el derecho a pedir que una persona revise la decisión de una máquina."]
+  },
+  {
+    id:4, category:"🔒 Privacidad", title:"La app de linterna",
+    scenario:"Andrés instala una app de linterna gratuita que pide acceso a contactos, micrófono, ubicación, cámara e historial de llamadas. El aviso de privacidad tiene 47 páginas en inglés técnico.",
+    question:"¿Qué debe hacer Andrés?",
+    options:["Aceptar todo, es normal.","Aceptar solo los permisos necesarios para una linterna (ninguno de los indicados) o buscar otra app.","Aceptar y leer las 47 páginas después.","Instalar y desactivar manualmente los permisos."],
+    correct:1,
+    feedback_correct:"¡Exacto! Una linterna no necesita acceso a contactos ni micrófono. El RGPD exige minimización de datos y consentimiento libre e informado.",
+    feedback_wrong:"Una linterna solo necesita acceder a la luz del flash. El resto de permisos son para recopilar y vender tus datos.",
+    law:"RGPD Art. 5(1)(c) minimización de datos. Art. 7: consentimiento libre, específico e informado.",
+    hints:["Pregúntate qué necesita técnicamente hacer una linterna.","Las apps gratuitas muchas veces financian su desarrollo con la venta de tus datos.","El RGPD te da el derecho de rechazar permisos innecesarios."]
+  },
+  {
+    id:5, category:"📱 Redes Sociales", title:"La foto sin permiso",
+    scenario:"Sin permiso, un compañero publica en Instagram una foto incómoda de Elena. La foto se hace viral y él se niega a eliminarla.",
+    question:"¿Qué puede hacer Elena legalmente en la UE?",
+    options:["Nada, ya está en internet.","Solo pedírselo amablemente.","Tiene derecho al olvido: puede exigir eliminación, denunciar a la plataforma y a la AEPD; protecciones extra si es menor.","Solo actuar si el contenido es explícito."],
+    correct:2,
+    feedback_correct:"¡Perfecto! El 'derecho al olvido' del RGPD permite exigir la eliminación. Instagram tiene obligación de actuar. La AEPD puede sancionar incumplimientos.",
+    feedback_wrong:"El RGPD incluye el derecho al olvido. Elena puede exigir la eliminación, denunciar a la plataforma y a la AEPD. Publicar fotos sin consentimiento viola la privacidad.",
+    law:"RGPD Art. 17: derecho de supresión. LOPDGDD: protecciones adicionales para menores en España.",
+    hints:["El RGPD reconoce el derecho a que te 'borren' de internet.","Las plataformas como Instagram están obligadas a actuar ante solicitudes correctamente formuladas.","Existe una autoridad pública que puede obligar a cumplir la ley."]
+  },
+  {
+    id:6, category:"🛡️ WiFi Pública", title:"La red del café",
+    scenario:"Pablo necesita enviar documentos confidenciales de trabajo urgentemente desde una cafetería. Hay WiFi abierta. Su empresa le da VPN pero tarda unos minutos en configurarse.",
+    question:"¿Qué debe hacer Pablo?",
+    options:["Conectarse rápido al WiFi gratis.","Esperar y no enviar nada aunque se pierda el plazo.","Configurar la VPN antes de conectarse, o usar datos móviles como hotspot.","Preguntar al camarero si la red es segura."],
+    correct:2,
+    feedback_correct:"¡Correcto! Las redes WiFi públicas permiten a atacantes interceptar el tráfico (man-in-the-middle). La VPN o el hotspot móvil son las alternativas seguras.",
+    feedback_wrong:"En redes WiFi públicas cualquiera puede interceptar los datos. Para documentos confidenciales siempre usa VPN o datos móviles propios.",
+    law:"RGPD Art. 32: medidas de seguridad adecuadas. NIS2: las empresas deben garantizar comunicaciones seguras.",
+    hints:["En una red WiFi pública, otros usuarios pueden 'escuchar' el tráfico no cifrado.","Las siglas VPN significan 'red privada virtual' y cifran tu conexión.","Los datos móviles de tu teléfono crean una red privada tuya."]
+  },
+  {
+    id:7, category:"🤖 Deepfakes", title:"El vídeo viral del político",
+    scenario:"Sofía ve un vídeo viral de un político diciendo cosas escandalosas. Millones de compartidos. Los labios se mueven de forma ligeramente extraña.",
+    question:"¿Cómo debe reaccionar Sofía?",
+    options:["Compartirlo inmediatamente.","No hacer nada.","No compartirlo, buscar la declaración en fuentes oficiales y reportarlo si es falso.","Compartirlo solo con amigos de confianza."],
+    correct:2,
+    feedback_correct:"¡Bien! Los deepfakes son cada vez más convincentes. Verificar en fuentes oficiales antes de compartir evita difundir desinformación y posibles responsabilidades legales.",
+    feedback_wrong:"Los deepfakes son vídeos manipulados con IA. Compartir desinformación tiene consecuencias legales. Siempre verifica en fuentes oficiales.",
+    law:"AI Act UE 2024: los deepfakes deben etiquetarse como contenido IA. DSA: las plataformas deben eliminar desinformación.",
+    hints:["Los movimientos labiales ligeramente desfasados son una señal clásica de deepfake.","Busca el vídeo en medios de comunicación verificados.","Compartir información falsa puede tener consecuencias legales."]
+  },
+  {
+    id:8, category:"💰 Fraude", title:"El iPhone gratis",
+    scenario:"Diego recibe un WhatsApp de número desconocido: 'Has ganado un iPhone 15. Paga solo 2€ de gastos de envío. Oferta expira en 2 horas.'",
+    question:"¿Qué está pasando y qué debe hacer?",
+    options:["Pagar los 2€ rápido antes de que expire.","Es fraude: ignorar y reportar. Los 2€ son el gancho para obtener datos bancarios.","Buscar en internet si otros ganaron el mismo premio.","Pedir más información antes de pagar."],
+    correct:1,
+    feedback_correct:"¡Exacto! Fraude clásico. Los 2€ iniciales obtienen tu tarjeta o generan cargos adicionales. Número desconocido, urgencia, premio no solicitado: señales claras.",
+    feedback_wrong:"Los 2€ son el gancho para tus datos bancarios. La urgencia artificial es una técnica de manipulación. Nunca hagas pagos de este tipo.",
+    law:"Directiva Europea contra el Fraude 2019/713: el fraude online es delito en toda la UE. Reportar al INCIBE o Policía Nacional.",
+    hints:["¿Participaste en algún sorteo de esta empresa?","El precio ridículo de 2€ está diseñado para que pienses que el riesgo es mínimo.","La urgencia de '2 horas' busca impedir que pienses con calma."]
+  },
+  {
+    id:9, category:"🔐 Datos Laborales", title:"El formulario de empleo",
+    scenario:"Ana solicita trabajo online. El formulario pide nombre, CV y también DNI completo, fecha de nacimiento, número de cuenta bancaria y foto. No explican para qué necesitan la cuenta.",
+    question:"¿Cómo debe proceder Ana?",
+    options:["Rellenar todo para demostrar confianza.","No dar el número de cuenta sin justificación y preguntar qué datos son estrictamente necesarios.","No enviar el formulario y buscar otra empresa.","Usar datos falsos para protegerse."],
+    correct:1,
+    feedback_correct:"¡Correcto! El RGPD exige minimización de datos. Una empresa no necesita tu cuenta bancaria para valorar una candidatura inicial. Ana puede negarse a dar datos injustificados.",
+    feedback_wrong:"El RGPD protege a Ana. Las empresas solo pueden pedir datos necesarios para el fin declarado. Pedir la cuenta bancaria en selección inicial es sospechoso e injustificado.",
+    law:"RGPD Art. 5(1)(c): minimización de datos. Art. 13: derecho a saber para qué se usan.",
+    hints:["¿Para qué necesita una empresa tu número de cuenta para leer tu CV?","Puedes pedir a cualquier empresa que te explique por qué necesita cada dato.","El RGPD te protege: puedes negarte a dar datos que no son necesarios para el proceso."]
+  },
+  {
+    id:10, category:"🌐 Soporte Falso", title:"La llamada de Microsoft",
+    scenario:"El ordenador de Roberto muestra un error y recibe una llamada de 'Microsoft' que detectaron un virus grave. Piden instalar un programa de acceso remoto y pagar 150€.",
+    question:"¿Qué debe hacer Roberto?",
+    options:["Instalar el programa para eliminar el virus.","Pagar los 150€, es barato si hay un virus grave.","Colgar inmediatamente. Microsoft nunca llama sin ser solicitado. Reiniciar y escanear con antivirus legítimo.","Pedir un descuento antes de aceptar."],
+    correct:2,
+    feedback_correct:"¡Perfecto! Fraude del soporte técnico falso. Microsoft y Apple nunca llaman sin solicitud. El acceso remoto daría control total de tu ordenador al estafador.",
+    feedback_wrong:"Microsoft nunca llama espontáneamente. El error fue provocado por ellos. El programa de acceso remoto les daría control de tu ordenador y contraseñas.",
+    law:"Europol y ENISA persiguen este fraude. En España: reportar al INCIBE (017) o Guardia Civil.",
+    hints:["Microsoft no tiene tu número de teléfono ni monitoriza ordenadores individuales.","El mensaje de error en pantalla fue diseñado por los propios estafadores.","Nunca permitas acceso remoto a alguien que te llama sin que lo hayas solicitado."]
+  }
+];
+
+const CASES_HARD = [
+  {
+    id:1, category:"⚖️ RGPD Avanzado", title:"El responsable conjunto del tratamiento",
+    scenario:"Una startup española usa la API de una red social estadounidense para analizar datos de sus usuarios y muestra publicidad personalizada. Cuando un usuario pide sus datos, la startup dice que los tiene la red social y la red social dice que los tiene la startup.",
+    question:"¿Quién es responsable de los datos según el RGPD?",
+    options:["Solo la red social, porque gestiona la infraestructura técnica.","Solo la startup, porque tiene el contrato con el usuario.","Ambas pueden ser corresponsables del tratamiento y el usuario puede dirigirse a cualquiera de ellas.","Ninguna, porque el usuario aceptó los términos de ambas."],
+    correct:2,
+    feedback_correct:"¡Correcto! El art. 26 del RGPD regula la corresponsabilidad. Cuando dos entidades determinan conjuntamente los fines del tratamiento, ambas son corresponsables y el interesado puede ejercer sus derechos ante cualquiera.",
+    feedback_wrong:"El RGPD contempla el concepto de 'corresponsables del tratamiento'. Si dos entidades deciden conjuntamente cómo y para qué se tratan los datos, ambas responden ante el usuario.",
+    law:"RGPD Art. 26: Corresponsables del tratamiento. El CEPD (Comité Europeo de Protección de Datos) ha emitido directrices sobre este supuesto específico.",
+    hints:["Existe una figura legal que implica que más de una empresa es responsable a la vez.","El hecho de que una sea técnica y otra comercial no exime a ninguna de la responsabilidad.","El RGPD fue diseñado para que los usuarios siempre tengan a alguien a quien dirigirse."]
+  },
+  {
+    id:2, category:"🤖 IA Act", title:"El sistema biométrico en el trabajo",
+    scenario:"Una gran empresa española instala un sistema de reconocimiento facial en tiempo real en sus oficinas para controlar el acceso y la asistencia de los empleados, argumentando que es para seguridad interna.",
+    question:"¿Es esto legal bajo la regulación europea de IA?",
+    options:["Sí, una empresa privada puede usar IA como quiera en sus instalaciones.","Sí, siempre que los empleados firmen un contrato de trabajo.","No, la identificación biométrica en tiempo real en espacios accesibles al público está prohibida con excepciones muy estrictas bajo la AI Act.","Solo es legal si la empresa tiene más de 250 empleados."],
+    correct:2,
+    feedback_correct:"¡Exacto! La AI Act clasifica los sistemas de identificación biométrica en tiempo real en espacios públicos como práctica prohibida salvo excepciones muy estrictas relacionadas con seguridad nacional y delitos graves. Una empresa privada no puede usarla para control de presencia.",
+    feedback_wrong:"La AI Act prohíbe la identificación biométrica en tiempo real en espacios accesibles al público salvo excepciones muy concretas. El uso empresarial para control de asistencia no está entre ellas.",
+    law:"AI Act UE 2024, Art. 5: prácticas de IA prohibidas. La identificación biométrica en tiempo real requiere autorización judicial previa en la UE para las excepciones permitidas.",
+    hints:["La AI Act tiene una categoría específica de sistemas de IA absolutamente prohibidos.","Piensa en la diferencia entre control de acceso por tarjeta y reconocimiento facial en tiempo real.","El contexto 'espacio accesible al público' incluye zonas de trabajo con acceso de terceros."]
+  },
+  {
+    id:3, category:"🔒 Transferencias Internacionales", title:"Los datos en la nube americana",
+    scenario:"Una clínica española almacena historiales médicos de pacientes en un servicio cloud de una empresa americana. Tras el fin del Privacy Shield, el contrato incluye solo unas 'cláusulas contractuales tipo' firmadas hace 4 años sin revisión posterior.",
+    question:"¿Qué obligación tiene la clínica según el RGPD?",
+    options:["Ninguna adicional, las cláusulas contractuales tipo son suficientes indefinidamente.","Debe verificar que las cláusulas contractuales son las versiones actualizadas de 2021 del CEPD y añadir medidas técnicas adicionales dado que son datos de salud (categoría especial).","Debe trasladar los datos a un servidor europeo inmediatamente.","Solo tiene obligación si la empresa americana sufre un hackeo."],
+    correct:1,
+    feedback_correct:"¡Excelente! Las SCCs de 2021 sustituyeron a las anteriores. Para datos de categoría especial como los médicos, se requieren medidas técnicas adicionales (cifrado, seudonimización) para compensar que EEUU carece de protección equivalente al RGPD.",
+    feedback_wrong:"Las Cláusulas Contractuales Tipo antiguas quedaron invalidadas. Las nuevas SCCs de 2021 deben complementarse con medidas técnicas adicionales, especialmente para datos de salud.",
+    law:"RGPD Art. 46 y 49: transferencias internacionales. Decisión de la Comisión Europea sobre SCCs (2021). Sentencia Schrems II del TJUE 2020.",
+    hints:["El Privacy Shield fue invalidado en 2020 por el Tribunal de Justicia de la UE.","Las Cláusulas Contractuales Tipo también tuvieron una revisión importante en 2021.","Los datos de salud son 'categoría especial' bajo el RGPD y requieren protecciones adicionales."]
+  },
+  {
+    id:4, category:"⚡ NIS2 Avanzada", title:"El ataque a la infraestructura crítica",
+    scenario:"Una empresa distribuidora de energía eléctrica en España detecta a las 3 de la madrugada un incidente de seguridad que podría afectar al suministro de 50.000 hogares. Su responsable de seguridad duda si notificarlo inmediatamente o esperar al análisis técnico completo.",
+    question:"¿Qué obligación de notificación tiene la empresa bajo NIS2?",
+    options:["Debe notificar solo si el ataque tiene éxito y hay un corte real de suministro.","Debe notificar en 72 horas al INCIBE cuando tenga el análisis completo.","Debe emitir una alerta temprana en 24 horas y notificación completa en 72 horas al INCIBE-CERT y al Ministerio.","Solo debe notificar si hay datos personales involucrados."],
+    correct:2,
+    feedback_correct:"¡Perfecto! NIS2 establece un doble plazo: alerta temprana en 24h y notificación completa en 72h. Las infraestructuras energéticas son entidades esenciales y los plazos se reducen respecto a la NIS original.",
+    feedback_wrong:"NIS2 exige notificación en dos fases: alerta temprana en 24 horas aunque no haya análisis completo, y notificación completa en 72 horas. La anticipación es clave en infraestructuras críticas.",
+    law:"Directiva NIS2 (UE 2022/2555): plazos de notificación de incidentes. Transpuesta en España por la Ley de Seguridad de las Redes e Información.",
+    hints:["NIS2 diferencia entre alerta temprana y notificación completa, con plazos distintos.","Una distribuidora de energía es una 'entidad esencial' con obligaciones más estrictas.","Esperar al análisis completo para notificar podría incumplir el plazo de alerta temprana."]
+  },
+  {
+    id:5, category:"🕵️ Privacidad Avanzada", title:"El derecho de acceso vs el secreto comercial",
+    scenario:"Un empleado solicita a su empresa todos los datos personales que tienen sobre él, incluyendo correos internos entre directivos donde se menciona su nombre en relación con una posible reestructuración. La empresa deniega el acceso a esos correos alegando secreto comercial.",
+    question:"¿Puede la empresa denegar esos correos en todos los casos?",
+    options:["Sí, el secreto comercial siempre prevalece sobre el derecho de acceso del RGPD.","No, el empleado tiene derecho a todos sus datos sin excepción.","Depende: pueden redactar los correos para proteger datos de terceros y secretos comerciales, pero no pueden negar que existen datos del empleado en ellos si los hay.","Solo si hay un acuerdo de confidencialidad firmado por el empleado."],
+    correct:2,
+    feedback_correct:"¡Correcto! Es una de las tensiones más complejas del RGPD. El secreto comercial puede justificar redacciones parciales, pero no negar la existencia de los datos ni privar al interesado de conocer si existen tratamientos sobre él.",
+    feedback_wrong:"El derecho de acceso y el secreto comercial deben ponderarse. La empresa puede redactar datos de terceros pero no puede negar que los datos del interesado existen. Es una de las áreas más disputadas del RGPD.",
+    law:"RGPD Art. 15: derecho de acceso. Considerando 63 RGPD: equilibrio con derechos de terceros. Doctrina del CEPD y jurisprudencia nacional sobre ponderación de intereses.",
+    hints:["El RGPD permite limitaciones al derecho de acceso, pero no su negación absoluta.","¿Qué diferencia hay entre 'no puedo darte ese documento' y 'no existen datos sobre ti'?","El empleado tiene derecho a saber qué datos tiene la empresa sobre él, aunque no a ver todos los documentos internos."]
+  },
+  {
+    id:6, category:"🔍 Evidencia Digital", title:"La cadena de custodia digital",
+    scenario:"Durante una investigación interna de fraude, el departamento de IT de una empresa copia archivos del ordenador de un sospechoso copiando directamente los archivos en una carpeta compartida, sin registrar los hashes, sin notario y sin presencia de testigos.",
+    question:"¿Qué problema fundamental tiene este procedimiento?",
+    options:["Ninguno, si el IT tiene acceso administrativo puede copiar archivos libremente.","Se vulneró la privacidad del empleado al no avisar antes.","Las pruebas recopiladas pueden ser inadmisibles judicialmente por falta de cadena de custodia: no se garantiza la integridad ni la autenticidad de la evidencia.","Solo hay problema si se encontraron pruebas del fraude."],
+    correct:2,
+    feedback_correct:"¡Excelente! En informática forense, la cadena de custodia requiere: copias bit a bit, registro de hashes criptográficos, acta notarial o testigos, y control de acceso a la evidencia. Sin esto, las pruebas son impugnables en juicio.",
+    feedback_wrong:"La cadena de custodia digital exige procedimientos rigurosos: imágenes forenses con hash, actas, testigos. Sin ellos, la defensa puede impugnar la integridad de las pruebas y hacerlas inadmisibles.",
+    law:"Ley de Enjuiciamiento Criminal española: requisitos de la prueba pericial. LOPDGDD: tratamiento de datos en contexto laboral. ISO/IEC 27037: directrices de evidencia digital.",
+    hints:["Piensa en cómo se sabe que un archivo no fue modificado después de ser copiado.","En juicio, la defensa puede preguntar: '¿cómo saben que ese archivo no fue alterado?'","Los procedimientos forenses existen precisamente para responder a esa pregunta de forma verificable."]
+  },
+  {
+    id:7, category:"⚖️ DSA Avanzado", title:"La moderación algorítmica",
+    scenario:"Una gran plataforma de vídeo elimina el canal de un creador de contenido educativo sobre ciberseguridad alegando que sus vídeos demostrativos de vulnerabilidades violan sus políticas. El creador no recibe explicación detallada y el sistema de apelación está automatizado.",
+    question:"¿Qué derechos tiene el creador bajo el Digital Services Act (DSA)?",
+    options:["Ninguno especial, las plataformas pueden moderar contenido libremente bajo sus términos de servicio.","Solo puede aceptar la decisión o crear otra cuenta.","Derecho a una explicación motivada, a un sistema de reclamación efectivo con revisión humana, y a someter la disputa a resolución extrajudicial certificada por la UE.","Solo si demuestra que el contenido era legal en todos los Estados Miembro de la UE."],
+    correct:2,
+    feedback_correct:"¡Perfecto! El DSA obliga a las plataformas muy grandes a explicar sus decisiones de moderación, ofrecer apelación con revisión humana y permitir resolución extrajudicial de disputas ante organismos certificados por la UE.",
+    feedback_wrong:"El DSA (Ley de Servicios Digitales) revoluciona los derechos de los usuarios ante moderación. Las grandes plataformas deben explicar, permitir apelar con revisión humana y aceptar resolución extrajudicial certificada.",
+    law:"DSA (Reglamento UE 2022/2065) Art. 17, 20, 21: obligaciones de transparencia y recurso para plataformas muy grandes (VLOP). Aplicable desde febrero 2024.",
+    hints:["El DSA entró en aplicación completa en 2024 con nuevas obligaciones para las grandes plataformas.","Existe una diferencia importante entre moderación algorítmica automatizada y revisión humana.","La UE creó mecanismos de resolución extrajudicial específicos para disputas con plataformas digitales."]
+  },
+  {
+    id:8, category:"🔐 Criptografía Legal", title:"El cifrado extremo a extremo ante la justicia",
+    scenario:"La policía española investiga una red criminal que usa una app de mensajería con cifrado extremo a extremo (E2E). Solicitan a la empresa que proporcione los mensajes descifrados. La empresa argumenta que técnicamente es imposible porque ni ellos tienen las claves.",
+    question:"¿Cuál es la posición legal más correcta en el marco europeo actual?",
+    options:["La empresa debe instalar una 'puerta trasera' si la justicia lo requiere.","La empresa está exenta de cualquier obligación si el cifrado E2E es genuino.","Es un área de tensión legal no resuelta: los tribunales europeos han protegido el cifrado E2E como derecho fundamental, pero existe presión legislativa para crear acceso excepcional que los expertos en seguridad consideran imposible sin debilitar el cifrado para todos.","El juez puede ordenar al sospechoso que facilite sus claves privadas bajo amenaza de cárcel."],
+    correct:2,
+    feedback_correct:"¡Excelente análisis! Es uno de los debates más complejos de la UE actualmente. El TJUE ha protegido el cifrado E2E. El Reglamento 'Chat Control' propuesto generó enorme controversia. Los expertos advierten: no existe 'puerta trasera' solo para buenos actores.",
+    feedback_wrong:"Es un debate jurídico y técnico no resuelto en la UE. El TJUE protege el cifrado E2E como derecho fundamental, pero hay presión legislativa. Los expertos coinciden: debilitar el cifrado para las autoridades lo debilita para todos.",
+    law:"TJUE: sentencias sobre privacidad de comunicaciones. CEDH Art. 8. Propuesta de Reglamento 'Chat Control' (2022, retirada por controversia). Dictamen 04/2022 del CEPD.",
+    hints:["¿Es posible técnicamente crear una 'puerta trasera' que solo usen las personas autorizadas?","El TJUE ha dictado sentencias importantes sobre vigilancia masiva de comunicaciones.","Hay una diferencia entre 'la empresa no quiere' y 'la empresa técnicamente no puede'."]
+  },
+  {
+    id:9, category:"🏢 Responsabilidad Corporativa", title:"El DPO y la presión directiva",
+    scenario:"La Delegada de Protección de Datos (DPO) de una empresa descubre que el departamento de marketing quiere usar datos de clientes para una campaña que viola el RGPD. La dirección le ordena que dé el visto bueno igualmente 'por interés comercial'. Si no lo hace, insinúan que su puesto podría estar en riesgo.",
+    question:"¿Cuál es la situación legal correcta?",
+    options:["Debe obedecer a la dirección, que es quien la contrata y puede despedirla.","Debe dar el visto bueno condicionado a ciertas mejoras para proteger a la empresa.","El DPO tiene independencia legal protegida: no puede ser represaliado por ejercer sus funciones. Debe mantener su criterio, documentarlo y puede comunicarlo a la autoridad de control.","Debe dimitir para no verse implicada legalmente."],
+    correct:2,
+    feedback_correct:"¡Correcto! El RGPD garantiza expresamente la independencia del DPO y prohíbe instrucciones sobre su ejercicio de funciones. No puede ser despedida por mantener su criterio técnico-legal. Puede y debe comunicar la situación a la AEPD si la presión continúa.",
+    feedback_wrong:"El RGPD (Art. 38) protege expresamente la independencia del DPO. No puede recibir instrucciones ni ser represaliado por su desempeño. Una represalia sería una infracción grave del RGPD denunciable ante la AEPD.",
+    law:"RGPD Art. 38(3): independencia del DPO y prohibición de represalias. Art. 83: sanciones por incumplimiento. La AEPD puede investigar estos casos de oficio.",
+    hints:["El RGPD tiene un artículo específico sobre la independencia del Delegado de Protección de Datos.","Una empresa que presiona a su DPO para que incumpla la ley está cometiendo una infracción adicional.","El DPO tiene canales directos con la autoridad de control independientemente de lo que opine la dirección."]
+  },
+  {
+    id:10, category:"🌐 Jurisdicción Digital", title:"El ataque desde otro país",
+    scenario:"Una empresa española de infraestructuras hospitalarias sufre un ransomware. La investigación indica que el ataque proviene de servidores en un país no miembro de la UE con el que no hay tratado de extradición. Los atacantes exigen criptomonedas.",
+    question:"¿Cuál es la respuesta más completa y correcta para la empresa?",
+    options:["Pagar el rescate, es la única opción si no hay extradición posible.","Notificar a la AEPD y al INCIBE, no pagar el rescate (financia más ataques y no garantiza recuperación), activar el plan de recuperación, y cooperar con Europol y el CCN-CERT.","Contratar hackers privados para contraatacar.","Esperar a que los atacantes den señales de negociación antes de notificar a las autoridades."],
+    correct:1,
+    feedback_correct:"¡Excelente! La respuesta correcta incluye todas las capas: notificación legal obligatoria (AEPD + INCIBE en plazo NIS2), no pago (desaconsejado por Europol y ENISA), activación de planes de contingencia, y cooperación con organismos supranacionales como Europol y el CCN-CERT.",
+    feedback_wrong:"La respuesta a un ransomware en infraestructura crítica requiere: notificación legal inmediata (NIS2), no pago del rescate (no garantiza nada y financia el crimen), plan de recuperación activado, y coordinación con INCIBE, CCN-CERT y Europol.",
+    law:"Directiva NIS2: notificación obligatoria. RGPD Art. 33-34: notificación de brecha. Convenio de Budapest sobre Ciberdelincuencia: marco de cooperación internacional. Europol EC3: unidad de ciberdelincuencia.",
+    hints:["Pagar un rescate no garantiza recuperar los datos y financia futuros ataques.","Existen organismos europeos e internacionales especializados en respuesta a ciberataques.","Las infraestructuras hospitalarias son entidades esenciales con obligaciones de notificación específicas y muy estrictas."]
+  }
+];
+
+/* ═══════════════════════════════════════════════
+   HINTS PER CHARACTER AND CASE
+═══════════════════════════════════════════════ */
+// Each case has 3 hints: [0]=easy(NOVA), [1]=medium(BYTE), [2]=hard(GLITCH)
+// We store them per difficulty pack inside each case object above already.
+
+/* ═══════════════════════════════════════════════
+   GAME STATE
+═══════════════════════════════════════════════ */
+let selectedDifficulty = null;
+let playerName = '';
+let playerSurname = '';
+let playerGender = null;
+let selectedCharacter = null;
+
+let currentCase = 0;
+let score = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let answered = false;
+let hintsUsed = 0;
+let hintsUsedThisCase = false;
+
+let CASES = [];
+
+const CHAR_CONFIG = {
+  1: { name: 'NOVA', maxHints: Infinity, color: 'var(--accent)' },
+  2: { name: 'BYTE', maxHints: 8, color: 'var(--gold)' },
+  3: { name: 'GLITCH', maxHints: 5, color: 'var(--accent2)' }
+};
+
+/* ═══════════════════════════════════════════════
+   SHUFFLE UTILITY
+═══════════════════════════════════════════════ */
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Returns a deep copy of a case with its options and correct index properly shuffled
+function shuffleCase(c) {
+  const sc = Object.assign({}, c);
+
+  // Tag each option with whether it is the correct one, then shuffle the array
+  let indexed = c.options.map((text, i) => ({ text, isCorrect: i === c.correct }));
+
+  // Fisher-Yates directly on the tagged array
+  for (let i = indexed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = indexed[i]; indexed[i] = indexed[j]; indexed[j] = tmp;
+  }
+
+  sc.options = indexed.map(o => o.text);
+  sc.correct = indexed.findIndex(o => o.isCorrect);
+  return sc;
+}
+
+/* ═══════════════════════════════════════════════
+   WEB AUDIO — SOUND EFFECTS
+═══════════════════════════════════════════════ */
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playCorrectSound() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    // Rising arpeggio: C5 → E5 → G5 → C6
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.1);
+      gain.gain.setValueAtTime(0, now + i * 0.1);
+      gain.gain.linearRampToValueAtTime(0.22, now + i * 0.1 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.28);
+      osc.start(now + i * 0.1);
+      osc.stop(now + i * 0.1 + 0.3);
+    });
+  } catch(e) {}
+}
+
+function playWrongSound() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    // Descending dissonant buzz
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+    osc1.type = 'sawtooth'; osc2.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(220, now);
+    osc1.frequency.linearRampToValueAtTime(140, now + 0.35);
+    osc2.frequency.setValueAtTime(233, now);
+    osc2.frequency.linearRampToValueAtTime(148, now + 0.35);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+    osc1.start(now); osc1.stop(now + 0.4);
+    osc2.start(now); osc2.stop(now + 0.4);
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════
+   CONFETTI SYSTEM
+═══════════════════════════════════════════════ */
+let confettiAnimId = null;
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const COLORS = ['#00d4ff','#ffd700','#00ff9d','#ff6b2b','#ff3b5c','#ffffff','#a855f7'];
+  const PIECE_COUNT = 160;
+  const pieces = [];
+
+  for (let i = 0; i < PIECE_COUNT; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -10 - Math.random() * canvas.height * 0.5,
+      w: 8 + Math.random() * 8,
+      h: 5 + Math.random() * 5,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.2,
+      vx: (Math.random() - 0.5) * 3,
+      vy: 2.5 + Math.random() * 4,
+      opacity: 1,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle'
+    });
+  }
+
+  let frame = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = 0;
+    pieces.forEach(p => {
+      if (p.y > canvas.height + 20) return;
+      alive++;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.06; // gravity
+      p.rotation += p.rotSpeed;
+      if (frame > 120) p.opacity -= 0.008;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'circle') {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      }
+      ctx.restore();
+    });
+
+    frame++;
+    if (alive > 0 && frame < 300) {
+      confettiAnimId = requestAnimationFrame(draw);
+    } else {
+      canvas.style.display = 'none';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+  draw();
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN NAVIGATION
+═══════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ─── WELCOME SCREEN ─── */
+function selectDifficulty(diff) {
+  selectedDifficulty = diff;
+  document.querySelectorAll('.diff-card').forEach(c => {
+    c.classList.remove('selected-easy','selected-medium','selected-hard');
+  });
+  document.getElementById('diff-' + diff).classList.add('selected-' + diff);
+  document.getElementById('btn-to-profile').disabled = false;
+}
+
+function goToProfile() {
+  if (!selectedDifficulty) return;
+  showScreen('screen-profile');
+}
+
+/* ─── PROFILE SCREEN ─── */
+function selectGender(g) {
+  playerGender = g;
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('g-' + g).classList.add('selected');
+  document.getElementById('err-gender').style.display = 'none';
+}
+
+function goToCharacter() {
+  const name = document.getElementById('inp-name').value.trim();
+  const surname = document.getElementById('inp-surname').value.trim();
+  let valid = true;
+
+  if (!name) {
+    document.getElementById('err-name').style.display = 'block';
+    valid = false;
+  } else {
+    document.getElementById('err-name').style.display = 'none';
+  }
+
+  if (!surname) {
+    document.getElementById('err-surname').style.display = 'block';
+    valid = false;
+  } else {
+    document.getElementById('err-surname').style.display = 'none';
+  }
+
+  if (!playerGender) {
+    document.getElementById('err-gender').style.display = 'block';
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  playerName = name;
+  playerSurname = surname;
+  showScreen('screen-character');
+}
+
+/* ─── CHARACTER SCREEN ─── */
+function selectCharacter(n) {
+  selectedCharacter = n;
+  document.querySelectorAll('.char-card').forEach(c => {
+    c.classList.remove('selected-char','selected-char-2','selected-char-3');
+  });
+  const classMap = {1:'selected-char', 2:'selected-char-2', 3:'selected-char-3'};
+  document.getElementById('char-' + n).classList.add(classMap[n]);
+  document.getElementById('btn-start-game').disabled = false;
+}
+
+/* ═══════════════════════════════════════════════
+   START GAME
+═══════════════════════════════════════════════ */
+function startGame() {
+  if (!selectedCharacter) return;
+
+  const diffMap = { easy: CASES_EASY, medium: CASES_MEDIUM, hard: CASES_HARD };
+  // Shuffle order of cases AND options within each case every new game
+  CASES = shuffleArray(diffMap[selectedDifficulty]).map(shuffleCase);
+
+  currentCase = 0; score = 0; correctCount = 0; wrongCount = 0;
+  hintsUsed = 0;
+
+  // Setup welcome banner
+  const genderTitle = {
+    male: `¡Bienvenido, Agente ${playerName}!`,
+    female: `¡Bienvenida, Agente ${playerName}!`,
+    other: `¡Bienvenide, Agente ${playerName}!`
+  };
+  document.getElementById('welcome-agent-title').textContent = genderTitle[playerGender];
+  document.getElementById('welcome-agent-text').textContent =
+    `Compañero: ${CHAR_CONFIG[selectedCharacter].name} | Dificultad: ${selectedDifficulty.toUpperCase()} | ¡Buena suerte en tu misión!`;
+  document.getElementById('welcome-banner').style.display = 'block';
+
+  document.getElementById('hud-name').textContent = playerName.toUpperCase();
+
+  setupCharacterSidebar();
+  showScreen('screen-game');
+  renderCase();
+}
+
+/* ─── SETUP CHAR SIDEBAR ─── */
+function setupCharacterSidebar() {
+  const cfg = CHAR_CONFIG[selectedCharacter];
+  document.getElementById('char-sidebar-name').textContent = cfg.name;
+  document.getElementById('char-sidebar-name').style.color = cfg.color;
+
+  // Clone the SVG from character selection
+  const origSvg = document.querySelector(`#char-${selectedCharacter} svg`);
+  const clone = origSvg.cloneNode(true);
+  clone.setAttribute('width', '80');
+  clone.setAttribute('height', '90');
+  document.getElementById('char-avatar-game').innerHTML = '';
+  document.getElementById('char-avatar-game').appendChild(clone);
+
+  updateHintsCounter();
+}
+
+function updateHintsCounter() {
+  const cfg = CHAR_CONFIG[selectedCharacter];
+  const counter = document.getElementById('hints-counter');
+  const noHintsMsg = document.getElementById('no-hints-msg');
+  const hintBtn = document.getElementById('hint-btn');
+
+  if (cfg.maxHints === Infinity) {
+    counter.textContent = '∞ pistas';
+    noHintsMsg.style.display = 'none';
+    hintBtn.disabled = answered;
+  } else {
+    const remaining = cfg.maxHints - hintsUsed;
+    counter.textContent = `${remaining} pista${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`;
+
+    if (remaining <= 0) {
+      noHintsMsg.style.display = 'block';
+      hintBtn.disabled = true;
+    } else {
+      noHintsMsg.style.display = 'none';
+      hintBtn.disabled = answered;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER CASE
+═══════════════════════════════════════════════ */
+function renderCase() {
+  answered = false;
+  hintsUsedThisCase = false;
+  const c = CASES[currentCase];
+  const letters = ['A','B','C','D'];
+
+  document.getElementById('hud-case').textContent = `${currentCase+1}/10`;
+  document.getElementById('hud-score').textContent = score;
+  document.getElementById('hud-correct').textContent = correctCount;
+  document.getElementById('hud-wrong').textContent = wrongCount;
+  document.getElementById('progress-fill').style.width = `${(currentCase/10)*100}%`;
+
+  document.getElementById('case-number').textContent = `CASO #${String(c.id).padStart(3,'0')}`;
+  document.getElementById('case-category').textContent = c.category;
+  document.getElementById('case-title').textContent = c.title;
+  document.getElementById('case-scenario').textContent = c.scenario;
+  document.getElementById('case-question').textContent = c.question;
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  c.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('next-wrap').style.display = 'none';
+  document.getElementById('hint-bubble').style.display = 'none';
+
+  // Hide welcome banner after first render
+  if (currentCase > 0) {
+    document.getElementById('welcome-banner').style.display = 'none';
+  }
+
+  updateHintsCounter();
+}
+
+/* ═══════════════════════════════════════════════
+   HINTS SYSTEM
+═══════════════════════════════════════════════ */
+function getHint() {
+  if (answered) return;
+  const cfg = CHAR_CONFIG[selectedCharacter];
+  if (cfg.maxHints !== Infinity && hintsUsed >= cfg.maxHints) return;
+
+  const c = CASES[currentCase];
+  const hintBubble = document.getElementById('hint-bubble');
+
+  // Choose hint based on character difficulty
+  const hintIndex = selectedCharacter - 1; // 0=NOVA, 1=BYTE, 2=GLITCH
+  const hint = c.hints[hintIndex];
+
+  hintBubble.textContent = `💬 ${CHAR_CONFIG[selectedCharacter].name}: "${hint}"`;
+  hintBubble.style.display = 'block';
+
+  hintsUsed++;
+  updateHintsCounter();
+}
+
+/* ═══════════════════════════════════════════════
+   SELECT ANSWER
+═══════════════════════════════════════════════ */
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const c = CASES[currentCase];
+  const btns = document.querySelectorAll('.option-btn');
+  const fb = document.getElementById('feedback');
+  const isCorrect = idx === c.correct;
+
+  btns.forEach(b => b.disabled = true);
+  btns[c.correct].classList.add('correct');
+  if (!isCorrect) btns[idx].classList.add('wrong');
+
+  if (isCorrect) { score += 10; correctCount++; playCorrectSound(); }
+  else { wrongCount++; playWrongSound(); }
+
+  document.getElementById('hud-score').textContent = score;
+  document.getElementById('hud-correct').textContent = correctCount;
+  document.getElementById('hud-wrong').textContent = wrongCount;
+
+  fb.className = `feedback ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  document.getElementById('feedback-header').innerHTML = isCorrect
+    ? '✅ &nbsp;DECISIÓN CORRECTA — +10 puntos'
+    : '❌ &nbsp;DECISIÓN INCORRECTA';
+  document.getElementById('feedback-text').textContent = isCorrect ? c.feedback_correct : c.feedback_wrong;
+  document.getElementById('feedback-law').innerHTML = `<span class="eu-law">⚖️ ${c.law}</span>`;
+  fb.style.display = 'block';
+
+  // Disable hint button after answering
+  document.getElementById('hint-btn').disabled = true;
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.textContent = currentCase < CASES.length - 1 ? 'SIGUIENTE CASO →' : 'VER RESULTADOS →';
+  document.getElementById('next-wrap').style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════════
+   NEXT CASE
+═══════════════════════════════════════════════ */
+function nextCase() {
+  currentCase++;
+  if (currentCase >= CASES.length) { showFinal(); return; }
+  renderCase();
+}
+
+/* ═══════════════════════════════════════════════
+   TRUMPET FANFARE — Web Audio API
+═══════════════════════════════════════════════ */
+function playTrumpetFanfare() {
+  try {
+    const ctx = getAudioCtx();
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.28, ctx.currentTime);
+    master.connect(ctx.destination);
+
+    // Create a brass-like timbre with multiple oscillators + distortion
+    function note(freq, start, dur, vol) {
+      const osc  = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const osc3 = ctx.createOscillator();
+      const g    = ctx.createGain();
+      const wave = ctx.createWaveShaper();
+
+      // Waveshaper for brass distortion
+      const curve = new Float32Array(256);
+      for (let i = 0; i < 256; i++) {
+        const x = (i * 2) / 256 - 1;
+        curve[i] = (Math.PI + 120) * x / (Math.PI + 120 * Math.abs(x));
+      }
+      wave.curve = curve;
+
+      osc.type  = 'sawtooth'; osc.frequency.value  = freq;
+      osc2.type = 'square';   osc2.frequency.value = freq * 1.005; // slight detune
+      osc3.type = 'sawtooth'; osc3.frequency.value = freq * 2.01;  // octave + detune
+
+      const g2 = ctx.createGain(); g2.gain.value = 0.5;
+      const g3 = ctx.createGain(); g3.gain.value = 0.2;
+
+      osc.connect(g); osc2.connect(g2); osc3.connect(g3);
+      g2.connect(g);  g3.connect(g);
+      g.connect(wave); wave.connect(master);
+
+      const t = ctx.currentTime + start;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.04);   // attack
+      g.gain.setValueAtTime(vol * 0.8, t + 0.12);       // decay
+      g.gain.linearRampToValueAtTime(vol * 0.75, t + dur - 0.08); // sustain
+      g.gain.linearRampToValueAtTime(0, t + dur);        // release
+
+      osc.start(t); osc2.start(t); osc3.start(t);
+      osc.stop(t + dur + 0.05);
+      osc2.stop(t + dur + 0.05);
+      osc3.stop(t + dur + 0.05);
+    }
+
+    // Classic fanfare melody: Sol Sol Sol Mi-b / Sol Mi-b Sol (trumpet call)
+    // Frequencies for Bb trumpet transposition feel:
+    // G4=392, Bb4=466, C5=523, Eb5=622, G5=784
+    const seq = [
+      // "Ta-ta-ta-TAAAA" opening
+      [392, 0.00, 0.12, 0.9],
+      [392, 0.13, 0.12, 0.9],
+      [392, 0.26, 0.12, 0.9],
+      [622, 0.39, 0.32, 1.0],  // Eb5 hold
+
+      // Second phrase rise
+      [523, 0.75, 0.12, 0.85],
+      [622, 0.88, 0.12, 0.85],
+      [784, 1.01, 0.45, 1.1],  // G5 triumphant hold
+
+      // Final flourish
+      [784, 1.50, 0.10, 0.9],
+      [698, 1.61, 0.10, 0.9],
+      [784, 1.72, 0.10, 0.9],
+      [880, 1.83, 0.55, 1.2],  // A5 peak
+      [784, 2.42, 0.80, 1.0],  // G5 resolution
+    ];
+
+    seq.forEach(([f, s, d, v]) => note(f, s, d, v));
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════
+   RANK SVG ILLUSTRATIONS
+═══════════════════════════════════════════════ */
+function getRankSVG(score) {
+  if (score === 100) {
+    // AGENTE DE ÉLITE — Trophy with stars and EU shield
+    return {glow:'rgba(255,215,0,0.7)', svg:`
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffd700" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#ffd700" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow1"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Halo -->
+        <circle cx="100" cy="100" r="90" fill="url(#rg1)"/>
+        <!-- Trophy cup -->
+        <path d="M65 50 L135 50 L128 100 Q128 118 100 122 Q72 118 72 100 Z" fill="#ffd700" stroke="#cc9900" stroke-width="2" filter="url(#glow1)"/>
+        <!-- Cup shine -->
+        <path d="M76 58 Q82 54 90 58 Q84 80 80 100" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+        <!-- Handles -->
+        <path d="M65 60 Q44 60 44 80 Q44 98 65 98" fill="none" stroke="#ffd700" stroke-width="5" stroke-linecap="round" filter="url(#glow1)"/>
+        <path d="M135 60 Q156 60 156 80 Q156 98 135 98" fill="none" stroke="#ffd700" stroke-width="5" stroke-linecap="round" filter="url(#glow1)"/>
+        <!-- Stem -->
+        <rect x="90" y="122" width="20" height="22" rx="3" fill="#ffd700"/>
+        <!-- Base -->
+        <rect x="72" y="144" width="56" height="12" rx="5" fill="#ffd700" stroke="#cc9900" stroke-width="1.5"/>
+        <!-- EU stars on cup -->
+        <text x="100" y="95" font-size="26" text-anchor="middle" fill="#fff" filter="url(#glow1)">★</text>
+        <!-- Stars burst around trophy -->
+        <text x="38"  y="52"  font-size="18" fill="#ffd700" filter="url(#glow1)">★</text>
+        <text x="148" y="52"  font-size="18" fill="#ffd700" filter="url(#glow1)">★</text>
+        <text x="26"  y="108" font-size="14" fill="#ffd700" opacity="0.8">✦</text>
+        <text x="158" y="108" font-size="14" fill="#ffd700" opacity="0.8">✦</text>
+        <text x="62"  y="30"  font-size="12" fill="#ffd700" opacity="0.7">✦</text>
+        <text x="124" y="30"  font-size="12" fill="#ffd700" opacity="0.7">✦</text>
+        <!-- Label -->
+        <text x="100" y="175" font-family="monospace" font-size="9" font-weight="bold" fill="#ffd700" text-anchor="middle" letter-spacing="3">AGENTE DE ÉLITE</text>
+      </svg>`};
+  } else if (score >= 80) {
+    // DETECTIVE SENIOR — Detective with magnifier, badge and medal
+    return {glow:'rgba(255,215,0,0.5)', svg:`
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rg2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffd700" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#ffd700" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="100" cy="100" r="88" fill="url(#rg2)"/>
+        <!-- Detective hat -->
+        <path d="M50 80 L150 80 L140 55 L60 55 Z" fill="#1a2a3a" stroke="#ffd700" stroke-width="2"/>
+        <rect x="44" y="79" width="112" height="8" rx="3" fill="#ffd700"/>
+        <!-- Head -->
+        <circle cx="100" cy="108" r="34" fill="#1a2a3a" stroke="#ffd700" stroke-width="2"/>
+        <!-- Face -->
+        <circle cx="88" cy="104" r="6" fill="#ffd700" opacity="0.9"/>
+        <circle cx="112" cy="104" r="6" fill="#ffd700" opacity="0.9"/>
+        <circle cx="88" cy="104" r="3" fill="#fff" opacity="0.7"/>
+        <circle cx="112" cy="104" r="3" fill="#fff" opacity="0.7"/>
+        <path d="M90 118 Q100 124 110 118" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
+        <!-- Monocle -->
+        <circle cx="112" cy="104" r="9" fill="none" stroke="#ffd700" stroke-width="1.5"/>
+        <line x1="120" y1="112" x2="124" y2="116" stroke="#ffd700" stroke-width="1.5"/>
+        <!-- Body / coat -->
+        <path d="M66 142 L74 178 L100 172 L126 178 L134 142 Q100 135 66 142Z" fill="#1a2a3a" stroke="#ffd700" stroke-width="1.5"/>
+        <!-- Coat lapels -->
+        <path d="M100 144 L88 156 L100 153 L112 156 Z" fill="#ffd700" opacity="0.7"/>
+        <!-- Medal -->
+        <circle cx="100" cy="165" r="8" fill="#ffd700" stroke="#cc9900" stroke-width="1.5" filter="url(#glow2)"/>
+        <text x="100" y="169" font-size="8" text-anchor="middle" fill="#1a2a3a" font-weight="bold">★</text>
+        <!-- Magnifier -->
+        <circle cx="148" cy="150" r="16" fill="none" stroke="#00d4ff" stroke-width="3.5" filter="url(#glow2)"/>
+        <circle cx="148" cy="150" r="10" fill="rgba(0,212,255,0.08)"/>
+        <line x1="159" y1="161" x2="170" y2="173" stroke="#00d4ff" stroke-width="4" stroke-linecap="round" filter="url(#glow2)"/>
+        <!-- Arms -->
+        <line x1="74" y1="148" x2="52" y2="162" stroke="#ffd700" stroke-width="6" stroke-linecap="round"/>
+        <line x1="126" y1="148" x2="148" y2="140" stroke="#ffd700" stroke-width="6" stroke-linecap="round"/>
+        <text x="100" y="193" font-family="monospace" font-size="8" font-weight="bold" fill="#ffd700" text-anchor="middle" letter-spacing="2">DETECTIVE SENIOR</text>
+      </svg>`};
+  } else if (score >= 60) {
+    // DETECTIVE — Shield with badge
+    return {glow:'rgba(0,212,255,0.5)', svg:`
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rg3" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow3"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="100" cy="100" r="88" fill="url(#rg3)"/>
+        <!-- Big shield -->
+        <path d="M100 22 L162 48 L162 108 Q162 158 100 178 Q38 158 38 108 L38 48 Z" fill="#0d1a2e" stroke="#00d4ff" stroke-width="3" filter="url(#glow3)"/>
+        <!-- Shield inner -->
+        <path d="M100 34 L150 56 L150 108 Q150 148 100 165 Q50 148 50 108 L50 56 Z" fill="#071420" stroke="#00d4ff" stroke-opacity="0.4" stroke-width="1.5"/>
+        <!-- Detective figure inside shield -->
+        <!-- Head -->
+        <circle cx="100" cy="78" r="18" fill="#0d2a40" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="94" cy="76" r="3" fill="#00d4ff" opacity="0.9"/>
+        <circle cx="106" cy="76" r="3" fill="#00d4ff" opacity="0.9"/>
+        <path d="M94 84 Q100 88 106 84" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Hat -->
+        <path d="M82 66 L118 66 L113 52 L87 52 Z" fill="#0d1a2e" stroke="#00d4ff" stroke-width="1.5"/>
+        <rect x="78" y="65" width="44" height="4" rx="1.5" fill="#00d4ff" opacity="0.8"/>
+        <!-- Body -->
+        <rect x="82" y="98" width="36" height="32" rx="6" fill="#0d2a40" stroke="#00d4ff" stroke-width="1.5"/>
+        <!-- Badge on body -->
+        <circle cx="100" cy="112" r="8" fill="#ffd700" stroke="#cc9900" stroke-width="1"/>
+        <text x="100" y="116" font-size="7" text-anchor="middle" fill="#0d1a2e" font-weight="bold">DET</text>
+        <!-- Arms -->
+        <line x1="82" y1="104" x2="68" y2="116" stroke="#00d4ff" stroke-width="4" stroke-linecap="round"/>
+        <line x1="118" y1="104" x2="132" y2="116" stroke="#00d4ff" stroke-width="4" stroke-linecap="round"/>
+        <!-- EU stars around shield top -->
+        <text x="64"  y="50"  font-size="12" fill="#ffd700" filter="url(#glow3)">★</text>
+        <text x="130" y="50"  font-size="12" fill="#ffd700" filter="url(#glow3)">★</text>
+        <text x="100" y="40"  font-size="12" fill="#ffd700" filter="url(#glow3)" text-anchor="middle">★</text>
+        <text x="100" y="193" font-family="monospace" font-size="9" font-weight="bold" fill="#00d4ff" text-anchor="middle" letter-spacing="3">DETECTIVE</text>
+      </svg>`};
+  } else if (score >= 40) {
+    // DETECTIVE JUNIOR — Trainee with magnifier and notebook
+    return {glow:'rgba(0,255,157,0.4)', svg:`
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rg4" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#00ff9d" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow4"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="100" cy="100" r="88" fill="url(#rg4)"/>
+        <!-- Character: junior trainee -->
+        <!-- Baseball cap -->
+        <path d="M72 72 Q72 52 100 52 Q128 52 128 72 Z" fill="#0d2a20" stroke="#00ff9d" stroke-width="2"/>
+        <path d="M72 72 L58 76 Q62 82 72 78 Z" fill="#0d2a20" stroke="#00ff9d" stroke-width="1.5"/>
+        <rect x="72" y="71" width="56" height="5" rx="2" fill="#00ff9d" opacity="0.7"/>
+        <!-- Head -->
+        <circle cx="100" cy="90" r="24" fill="#0d2a20" stroke="#00ff9d" stroke-width="2"/>
+        <circle cx="91" cy="88" r="4" fill="#00ff9d" opacity="0.85"/>
+        <circle cx="109" cy="88" r="4" fill="#00ff9d" opacity="0.85"/>
+        <path d="M92 98 Q100 104 108 98" fill="none" stroke="#00ff9d" stroke-width="2" stroke-linecap="round"/>
+        <!-- Freckles -->
+        <circle cx="86" cy="94" r="1.5" fill="#00ff9d" opacity="0.4"/>
+        <circle cx="90" cy="96" r="1.5" fill="#00ff9d" opacity="0.4"/>
+        <circle cx="110" cy="94" r="1.5" fill="#00ff9d" opacity="0.4"/>
+        <circle cx="114" cy="96" r="1.5" fill="#00ff9d" opacity="0.4"/>
+        <!-- Body -->
+        <rect x="76" y="116" width="48" height="42" rx="8" fill="#0d2a20" stroke="#00ff9d" stroke-width="2"/>
+        <!-- Trainee badge -->
+        <rect x="87" y="122" width="26" height="18" rx="3" fill="#071420" stroke="#00ff9d" stroke-width="1"/>
+        <text x="100" y="129" font-size="5.5" text-anchor="middle" fill="#00ff9d" font-family="monospace">JUNIOR</text>
+        <text x="100" y="136" font-size="5.5" text-anchor="middle" fill="#00ff9d" font-family="monospace">AGENT</text>
+        <!-- Notebook in left hand -->
+        <rect x="42" y="124" width="22" height="28" rx="3" fill="#0d3a20" stroke="#00ff9d" stroke-width="1.5" filter="url(#glow4)"/>
+        <line x1="46" y1="131" x2="60" y2="131" stroke="#00ff9d" stroke-width="1" opacity="0.6"/>
+        <line x1="46" y1="137" x2="60" y2="137" stroke="#00ff9d" stroke-width="1" opacity="0.6"/>
+        <line x1="46" y1="143" x2="56" y2="143" stroke="#00ff9d" stroke-width="1" opacity="0.6"/>
+        <!-- Magnifier in right hand -->
+        <circle cx="148" cy="136" r="14" fill="none" stroke="#00ff9d" stroke-width="3" filter="url(#glow4)"/>
+        <circle cx="148" cy="136" r="8" fill="rgba(0,255,157,0.07)"/>
+        <line x1="158" y1="146" x2="166" y2="155" stroke="#00ff9d" stroke-width="3.5" stroke-linecap="round" filter="url(#glow4)"/>
+        <!-- Arms -->
+        <line x1="76" y1="124" x2="56" y2="134" stroke="#00ff9d" stroke-width="5" stroke-linecap="round"/>
+        <line x1="124" y1="124" x2="144" y2="130" stroke="#00ff9d" stroke-width="5" stroke-linecap="round"/>
+        <!-- Legs -->
+        <line x1="88"  y1="158" x2="84"  y2="178" stroke="#00ff9d" stroke-width="5" stroke-linecap="round"/>
+        <line x1="112" y1="158" x2="116" y2="178" stroke="#00ff9d" stroke-width="5" stroke-linecap="round"/>
+        <text x="100" y="195" font-family="monospace" font-size="8" font-weight="bold" fill="#00ff9d" text-anchor="middle" letter-spacing="2">DETECTIVE JUNIOR</text>
+      </svg>`};
+  } else {
+    // APRENDIZ — Student with book and question mark
+    return {glow:'rgba(255,107,43,0.4)', svg:`
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rg5" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff6b2b" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#ff6b2b" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow5"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="100" cy="100" r="88" fill="url(#rg5)"/>
+        <!-- Big question mark background -->
+        <text x="100" y="125" font-size="100" text-anchor="middle" fill="#ff6b2b" opacity="0.08" font-weight="bold">?</text>
+        <!-- Character: student -->
+        <!-- Head -->
+        <circle cx="100" cy="76" r="26" fill="#1a0d00" stroke="#ff6b2b" stroke-width="2"/>
+        <!-- Graduation cap -->
+        <rect x="78" y="57" width="44" height="6" rx="2" fill="#ff6b2b" opacity="0.9"/>
+        <path d="M100 50 L78 57 L100 64 L122 57 Z" fill="#ff6b2b" opacity="0.9"/>
+        <line x1="122" y1="57" x2="128" y2="68" stroke="#ff6b2b" stroke-width="2"/>
+        <circle cx="128" cy="70" r="3" fill="#ffd700"/>
+        <!-- Face: confused expression -->
+        <circle cx="90" cy="74" r="4.5" fill="#ff6b2b" opacity="0.8"/>
+        <circle cx="110" cy="74" r="4.5" fill="#ff6b2b" opacity="0.8"/>
+        <circle cx="90" cy="74" r="2" fill="#fff" opacity="0.6"/>
+        <circle cx="110" cy="74" r="2" fill="#fff" opacity="0.6"/>
+        <!-- Confused mouth -->
+        <path d="M92 86 Q96 82 100 85 Q104 88 108 84" fill="none" stroke="#ff6b2b" stroke-width="2" stroke-linecap="round"/>
+        <!-- Sweat drop -->
+        <path d="M116 66 Q118 62 120 66 Q120 70 116 70 Z" fill="#00d4ff" opacity="0.7"/>
+        <!-- Body -->
+        <rect x="76" y="104" width="48" height="44" rx="8" fill="#1a0d00" stroke="#ff6b2b" stroke-width="2"/>
+        <!-- School tie -->
+        <path d="M97 104 L94 122 L100 118 L106 122 L103 104 Z" fill="#ff6b2b" opacity="0.6"/>
+        <!-- Big book in hands -->
+        <rect x="34" y="116" width="32" height="40" rx="3" fill="#0d1a2e" stroke="#ff6b2b" stroke-width="2" filter="url(#glow5)"/>
+        <rect x="50" y="116" width="2" height="40" fill="#ff6b2b" opacity="0.5"/>
+        <text x="42" y="130" font-size="7" fill="#ff6b2b" font-family="monospace" opacity="0.8">RGPD</text>
+        <text x="42" y="140" font-size="7" fill="#ff6b2b" font-family="monospace" opacity="0.8">NIS2</text>
+        <text x="42" y="150" font-size="7" fill="#ff6b2b" font-family="monospace" opacity="0.8">IA</text>
+        <!-- Question mark bubble -->
+        <circle cx="148" cy="118" r="22" fill="#1a0d00" stroke="#ff6b2b" stroke-width="2" filter="url(#glow5)"/>
+        <text x="148" y="127" font-size="28" text-anchor="middle" fill="#ff6b2b" font-weight="bold" filter="url(#glow5)">?</text>
+        <!-- Arms -->
+        <line x1="76"  y1="114" x2="56"  y2="128" stroke="#ff6b2b" stroke-width="5" stroke-linecap="round"/>
+        <line x1="124" y1="114" x2="142" y2="110" stroke="#ff6b2b" stroke-width="5" stroke-linecap="round"/>
+        <!-- Legs -->
+        <line x1="88"  y1="148" x2="84"  y2="170" stroke="#ff6b2b" stroke-width="5" stroke-linecap="round"/>
+        <line x1="112" y1="148" x2="116" y2="170" stroke="#ff6b2b" stroke-width="5" stroke-linecap="round"/>
+        <text x="100" y="193" font-family="monospace" font-size="9" font-weight="bold" fill="#ff6b2b" text-anchor="middle" letter-spacing="3">APRENDIZ</text>
+      </svg>`};
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   FINAL SCREEN
+═══════════════════════════════════════════════ */
+function showFinal() {
+  showScreen('screen-final');
+  setTimeout(launchConfetti, 300);
+  setTimeout(playTrumpetFanfare, 600);
+
+  const genderPrefix = { male:'Agente', female:'Agente', other:'Agente' };
+  document.getElementById('final-agent-info').textContent =
+    `${genderPrefix[playerGender]} ${playerName} ${playerSurname} · ${selectedDifficulty.toUpperCase()} · Compañero: ${CHAR_CONFIG[selectedCharacter].name} · Pistas usadas: ${hintsUsed}`;
+
+  document.getElementById('rank-score').textContent = score;
+  document.getElementById('final-correct').textContent = correctCount;
+  document.getElementById('final-wrong').textContent = wrongCount;
+  document.getElementById('final-pct').textContent = Math.round((correctCount / CASES.length) * 100) + '%';
+
+  let icon, title, desc;
+  if (score === 100) {
+    icon='🏆'; title='AGENTE DE ÉLITE';
+    desc=`¡Puntuación perfecta, ${playerName}! Eres un experto en ciberseguridad y derechos digitales europeos.`;
+  } else if (score >= 80) {
+    icon='🥇'; title='DETECTIVE SENIOR';
+    desc=`Excelente trabajo, ${playerName}. Conoces muy bien los peligros digitales y la legislación europea.`;
+  } else if (score >= 60) {
+    icon='🥈'; title='DETECTIVE';
+    desc=`Buen resultado, ${playerName}. Tienes una base sólida pero hay áreas que puedes reforzar.`;
+  } else if (score >= 40) {
+    icon='🥉'; title='DETECTIVE JUNIOR';
+    desc=`Vas por buen camino, ${playerName}. Sigue aprendiendo sobre ciberseguridad y derechos digitales.`;
+  } else {
+    icon='🔎'; title='APRENDIZ';
+    desc=`El mundo digital tiene muchos peligros que aún debes aprender a identificar, ${playerName}. ¡Inténtalo de nuevo!`;
+  }
+
+  document.getElementById('rank-icon').textContent = icon;
+  document.getElementById('rank-title').textContent = title;
+  document.getElementById('rank-desc').textContent = desc;
+
+  // Rank illustration
+  const rankData = getRankSVG(score);
+  const illDiv = document.getElementById('rank-illustration');
+  illDiv.style.setProperty('--rank-glow', rankData.glow);
+  illDiv.innerHTML = rankData.svg;
+}
+
+/* ═══════════════════════════════════════════════
+   RESTART
+═══════════════════════════════════════════════ */
+function restartGame() {
+  selectedDifficulty = null;
+  selectedCharacter = null;
+  playerGender = null;
+  document.querySelectorAll('.diff-card').forEach(c =>
+    c.classList.remove('selected-easy','selected-medium','selected-hard'));
+  document.querySelectorAll('.char-card').forEach(c =>
+    c.classList.remove('selected-char','selected-char-2','selected-char-3'));
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-surname').value = '';
+  document.getElementById('btn-to-profile').disabled = true;
+  document.getElementById('btn-start-game').disabled = true;
+  showScreen('screen-welcome');
+}
+</script>
+</body>
+</html>
